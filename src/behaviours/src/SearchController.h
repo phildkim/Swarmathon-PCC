@@ -1,6 +1,7 @@
 #ifndef SEARCH_CONTROLLER
 #define SEARCH_CONTROLLER
 
+#include <array>
 #include <random_numbers/random_numbers.h>
 #include "Controller.h"
 
@@ -32,11 +33,15 @@ protected:
   void ProcessData();
 
 private:
-
   random_numbers::RandomNumberGenerator* rng;
   Point currentLocation;
   Point centerLocation;
   Point searchLocation;
+  
+  int square_index;
+  std::array<float, 4> square_angles;
+  std::array<Point, 4> square_waypoints;
+  
   int attemptCount = 0;
   //struct for returning data to ROS adapter
   Result result;
