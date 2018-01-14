@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
 	ros::NodeHandle node;
 	ros::ServiceServer get_coordinate_data = node.advertiseService<ccny_srvs::GetCoordinates::Request, ccny_srvs::GetCoordinates::Response>(
 		"get_coordinate_data",
-		boost::bind(&getCoordinateData, _1, _2, base_addr)
+		boost::bind(&getCoordinateData, _1, _2, boost::ref(base_addr))
 	);
 	
 	ros::ServiceServer set_coordinate_data = node.advertiseService<ccny_srvs::SetCoordinates::Request, ccny_srvs::SetCoordinates::Response>(

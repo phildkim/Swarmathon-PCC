@@ -7,6 +7,7 @@ GridService::~GridService() { }
 
 bool GridService::getStatus(ccny_srvs::GetStatus::Request& req, ccny_srvs::GetStatus::Response& res, uint8_t stride, uint8_t offset, uint8_t mask) {
         res.data = (this->data & mask) >> offset;
+	ROS_INFO("Status Register: [%u]", this->data);
         res.success = true;
         return true;
 }
@@ -14,7 +15,7 @@ bool GridService::getStatus(ccny_srvs::GetStatus::Request& req, ccny_srvs::GetSt
 bool GridService::setStatus(ccny_srvs::SetStatus::Request& req, ccny_srvs::SetStatus::Response& res, uint8_t stride, uint8_t offset, uint8_t mask) {
         if(req.data != (this->data & mask) >> offset)
                 this->data ^= (1 << offset);
-
+	
         res.success = true;
         return true;
 }
