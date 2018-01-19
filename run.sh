@@ -17,8 +17,9 @@ echo Killing rosmaster
 pkill rosmaster
 echo Killing roscore
 pkill roscore
+roslaunch --wait pickup_serv service.launch &
 roscore &
-sleep 2
+sleep 2 
 rqt -s rqt_rover_gui
 # The rover program cleans up after itself but if there is a crash this helps to make sure there are no leftovers
 echo Cleaning up ROS and Gazebo Processes

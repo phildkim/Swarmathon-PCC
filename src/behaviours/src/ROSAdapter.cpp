@@ -29,6 +29,7 @@
 
 #include "Point.h"
 #include "Tag.h"
+#include "CreateLog.h"
 
 // To handle shutdown signals so the node quits
 // properly in response to "rosnode kill"
@@ -319,7 +320,10 @@ void behaviourStateMachine(const ros::TimerEvent&)
     
     //ask logic controller for the next set of actuator commands
     result = logicController.DoWork();
-    
+    std_msgs::String datamsg;
+    new CreateLog(&datamsg,&result);
+    infoLogPublisher.publish(datamsg);
+
     bool wait = false;
     
     //if a wait behaviour is thrown sit and do nothing untill logicController is ready

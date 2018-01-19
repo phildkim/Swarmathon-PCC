@@ -1,0 +1,5 @@
+<launch>
+	<node name="pickup_service" pkg="pickup_serv" type="pickupserver"/>
+
+
+</launch>
