@@ -1,15 +1,19 @@
 #include "DropOffController.h"
+#include <ros/ros.h>
+#include <std_msgs/String.h>
+#include <ros/console.h>
+static int robottype = 1;
+
+
 
 DropOffController::DropOffController() {
 
   reachedCollectionPoint = false;
-
   result.type = behavior;
   result.b = wait;
   result.wristAngle = 0.7;
   result.reset = false;
   interrupt = false;
-
   circularCenterSearching = false;
   spinner = 0;
   centerApproach = false;
@@ -29,14 +33,17 @@ DropOffController::~DropOffController() {
 
 }
 
-Result DropOffController::DoWork() {
+Result DropOffController::DoWork(){
 
+    switch(robottype){
+case 1:
+    {
   cout << "8" << endl;
-
+  ROS_WARN("%s","HELLOWORLD  ");
   int count = countLeft + countRight;
 
   if(timerTimeElapsed > -1) {
-
+    ROS_WARN("%s","timeTimeElapsed is greater than negative one");
     long int elapsed = current_time - returnTimer;
     timerTimeElapsed = elapsed/1e3; // Convert from milliseconds to seconds
   }
@@ -48,8 +55,10 @@ Result DropOffController::DoWork() {
     cout << "2" << endl;
     if (timerTimeElapsed >= 5)
     {
+        ROS_WARN("%s","We have reached collection point and also timer is greater than 5");
       if (finalInterrupt)
       {
+        ROS_WARN("%s","This is the final interrupt");
         result.type = behavior;
         result.b = nextProcess;
         result.reset = true;
@@ -57,12 +66,14 @@ Result DropOffController::DoWork() {
       }
       else
       {
+        ROS_WARN("%s","FInal Interupt is true ");
         finalInterrupt = true;
         cout << "1" << endl;
       }
     }
     else if (timerTimeElapsed >= 0.1)
     {
+      ROS_WARN("%s","TImer is greater than 0.1 and not greater than 5");
       isPrecisionDriving = true;
       result.type = precisionDriving;
 
@@ -77,10 +88,10 @@ Result DropOffController::DoWork() {
   }
 
   double distanceToCenter = hypot(this->centerLocation.x - this->currentLocation.x, this->centerLocation.y - this->currentLocation.y);
-
+  //double distanceToLocation = hypot(this->currentLocation.x/2,this->currentLocation.y/2);// This must be moved to a controlled area where specific functions are set for different robot types.
   //check to see if we are driving to the center location or if we need to drive in a circle and look.
   if (distanceToCenter > collectionPointVisualDistance && !circularCenterSearching && (count == 0)) {
-
+    ROS_WARN("%s","DIstance is greater than collection point visual distance");
     result.type = waypoint;
     result.wpts.waypoints.clear();
     result.wpts.waypoints.push_back(this->centerLocation);
@@ -94,6 +105,7 @@ Result DropOffController::DoWork() {
   }
   else if (timerTimeElapsed >= 2)//spin search for center
   {
+    ROS_WARN("%s","We are spin searching");
     Point nextSpinPoint;
 
     //sets a goal that is 60cm from the centerLocation and spinner
@@ -127,14 +139,14 @@ Result DropOffController::DoWork() {
 
   //reset lastCenterTagThresholdTime timout timer to current time
   if ((!centerApproach && !seenEnoughCenterTags) || (count > 0 && !seenEnoughCenterTags)) {
-
+    ROS_WARN("%s","We are resetting LastcenterTagThreshold");
     lastCenterTagThresholdTime = current_time;
 
   }
 
   if (count > 0 || seenEnoughCenterTags || prevCount > 0) //if we have a target and the center is located drive towards it.
   {
-
+    ROS_WARN("%s","we have a target and the center is located drive towards it");
     cout << "9" << endl;
     centerSeen = true;
 
@@ -245,15 +257,85 @@ Result DropOffController::DoWork() {
     return result;
 
   }
-
   if (!centerSeen && seenEnoughCenterTags)
   {
+      ROS_WARN("%s","We have reached our collection point ");
     reachedCollectionPoint = true;
     centerApproach = false;
     returnTimer = current_time;
   }
 
   return result;
+    }
+  //THIS IS FOR THE SEARCHING ROBOTS
+case 0:
+    {
+        ROS_WARN("%s","This is the starting of the second case");
+        int count = countLeft + countRight;
+
+        if(timerTimeElapsed > -1) {
+
+          long int elapsed = current_time - returnTimer;
+          timerTimeElapsed = elapsed/1e3; // Convert from milliseconds to seconds
+        }
+
+        //if we are in the routine for exiting the circle once we have dropped a block off and reseting all our flags
+        //to resart our search.
+        if(reachedCollectionPoint)
+        {
+          cout << "2" << endl;
+          if (timerTimeElapsed >= 2)
+          {
+            ROS_WARN("%s","Timer is greater than 5 seconds");
+            if (finalInterrupt)
+            {
+              result.type = behavior;
+              result.b = nextProcess;
+              result.reset = true;
+              return result;
+            }
+            else
+            {
+              finalInterrupt = true;
+              cout << "1" << endl;
+            }
+          }
+          else if (timerTimeElapsed >= 0.1)
+          {
+            ROS_WARN("%s","we have reached our drop off but time is greater than 0.1 but less than 5");
+            isPrecisionDriving = true;
+            result.type = precisionDriving;
+
+            result.fingerAngle = M_PI_2; //open fingers
+            result.wristAngle = 0; //raise wrist
+
+            result.pd.cmdVel = -0.3;
+            result.pd.cmdAngularError = 0.0;
+          }
+
+          return result;
+        }
+        double distanceToLocation = hypot(this->dropOffLocation.x - this->currentLocation.x, this->dropOffLocation.y - this->currentLocation.y);
+        if(distanceToLocation> 0.2){
+            ROS_WARN("%s","Distance is greater than 0.2");
+            result.type = waypoint;
+            result.wpts.waypoints.clear();
+            result.wpts.waypoints.push_back(this->dropOffLocation);
+            startWaypoint = false;
+            isPrecisionDriving = false;
+
+            timerTimeElapsed = 0;
+
+            return result;
+
+          }else if(distanceToLocation <0.2){
+            reachedCollectionPoint = true;
+            returnTimer = current_time;
+
+        }
+        return result;
+    }
+    }
 }
 
 void DropOffController::Reset() {
@@ -363,6 +445,10 @@ void DropOffController::SetCenterLocation(Point center) {
 void DropOffController::SetCurrentLocation(Point current) {
   currentLocation = current;
 }
+void DropOffController::SetDropoffLocation(Point dropoff){
+    dropOffLocation.x = dropoff.x/2;
+    dropOffLocation.y = dropoff.y/2;
+}
 
 void DropOffController::SetTargetPickedUp() {
   targetHeld = true;
@@ -375,4 +461,8 @@ void DropOffController::SetBlockBlockingUltrasound(bool blockBlock) {
 void DropOffController::SetCurrentTimeInMilliSecs( long int time )
 {
   current_time = time;
+}
+void DropOffController::changeType(){
+    robottype = 0;
+    ROS_WARN("%s","WARNging");
 }

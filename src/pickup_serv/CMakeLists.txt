@@ -194,6 +194,14 @@ target_link_libraries(pickupserver
   ${catkin_LIBRARIES}
 )
 
+add_executable(robotid src/type_service.cpp)
+add_dependencies(robotid ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(robotid
+  ${catkin_LIBRARIES}
+)
+
 add_executable(pickupclient src/pickup_client.cpp)
 add_dependencies(pickupclient ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
@@ -201,6 +209,7 @@ add_dependencies(pickupclient ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPOR
 target_link_libraries(pickupclient
   ${catkin_LIBRARIES}
 )
+
 #############
 ## Testing ##
 #############

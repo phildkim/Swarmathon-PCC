@@ -8,6 +8,7 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
+#include <ros/console.h>
 
 // ROS messages
 #include <std_msgs/Float32.h>
@@ -22,6 +23,7 @@
 #include <apriltags_ros/AprilTagDetectionArray.h>
 #include <std_msgs/Float32MultiArray.h>
 #include "swarmie_msgs/Waypoint.h"
+#include "ccny_srvs/RobotType.h"
 
 // Include Controllers
 #include "LogicController.h"
@@ -122,6 +124,7 @@ char host[128];
 string publishedName;
 char prev_state_machine[128];
 
+ros::ServiceClient id;
 // Publishers
 ros::Publisher stateMachinePublish;
 ros::Publisher status_publisher;
@@ -197,7 +200,7 @@ int main(int argc, char **argv) {
   // NoSignalHandler so we can catch SIGINT ourselves and shutdown the node
   ros::init(argc, argv, (publishedName + "_BEHAVIOUR"), ros::init_options::NoSigintHandler);
   ros::NodeHandle mNH;
-  
+  id = mNH.serviceClient<ccny_srvs::RobotType>("getID");
   // Register the SIGINT event handler so the node can shutdown properly
   signal(SIGINT, sigintEventHandler);
   
@@ -277,6 +280,11 @@ void behaviourStateMachine(const ros::TimerEvent&)
 
       // initialization has run
       initilized = true;
+      ccny_srvs::RobotType ms;
+      id.call(ms);
+      logicController.id=ms.response.id;
+      logicController.setRobotType();
+      ROS_WARN("ID: %d and NAME: %s",logicController.id,publishedName);
       //TODO: this just sets center to 0 over and over and needs to change
       Point centerOdom;
       centerOdom.x = 1.3 * cos(currentLocation.theta);

@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "SearchController.h"
 #include <angles/angles.h>
-
+static int type = 1 ;
 SearchController::SearchController() {
   rng = new random_numbers::RandomNumberGenerator();
   currentLocation.x = 0;
@@ -54,29 +54,22 @@ Result SearchController::DoWork() {
     if (first_waypoint)
     {
       first_waypoint = false;
-      square_index = rng->uniformInteger(0, square_angles.size() - 1);
-      std::transform(square_angles.begin(), square_angles.end(), square_waypoints.begin(),
-            [](float angle) -> Point {
-                  Point newPoint;
-                  newPoint.theta = angle;
-                  newPoint.x = sqrt(12.5) * cos(angle);
-                  newPoint.y = sqrt(12.5) * sin(angle);
-                  return newPoint;
-            });
-      
-      searchLocation = square_waypoints.at(square_index);
-      
-      /*
-      std::for_each(square_waypoints.begin(), square_waypoints.end(), [](Point p) {
-            p.theta += M_PI/4;
-      });
-      */
+      switch(type){
+      case 0: break;
+      case 1: break;
+      }
+
+      // insert the next locaiton here.
+      //
     }
     else
     {
       //select new heading from Gaussian distribution around current heading
-      square_index = (square_index + 1) % square_waypoints.size();
-      searchLocation = square_waypoints.at(square_index);
+      //iNSERT NEXT LOCATION HERe.
+        switch(type){
+        case 0: break;
+        case 1: break;
+        }
     }
 
     result.wpts.waypoints.clear();
@@ -122,4 +115,6 @@ void SearchController::SetSuccesfullPickup() {
   succesfullPickup = true;
 }
 
-
+void SearchController::setType(){
+    type=0;
+}

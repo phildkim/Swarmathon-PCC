@@ -65,6 +65,7 @@ add_service_files(
   SetCoordinates.srv
   GetPickup.srv
   SetPickup.srv
+  RobotType.srv
 )
 
 ## Generate actions in the 'action' folder

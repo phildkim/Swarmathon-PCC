@@ -85,7 +85,8 @@ public:
   // allowed range.
   void setVirtualFenceOn( RangeShape* range );
   void setVirtualFenceOff( );
-
+  void setRobotType();
+  int id;
 protected:
   void ProcessData();
 

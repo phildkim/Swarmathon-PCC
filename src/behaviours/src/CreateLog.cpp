@@ -1,4 +1,5 @@
 #include<string>
+#include <bits/stdc++.h>
 CreateLog::CreateLog(std_msgs::String * msg, Result * res){
     this->res = res;
     this->msg = msg;
@@ -49,5 +50,9 @@ void CreateLog::getLog(){
     case SLOW_PID: msg->data+="SLOW_PID";break;
     case CONST_PID: msg->data+="CONST_PID";break;
     }
+    std::string data(msg->data);
+    char data_array(data.length());
+//    strcpy(data_array,data.c_str());
+//    ROS_WARN("%s",msg->data);
 
 }

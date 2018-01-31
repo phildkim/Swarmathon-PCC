@@ -2,6 +2,7 @@
 #define LOG_CLASS
 
 #include <std_msgs/String.h>
+#include "ros/console.h"
 
 #ifndef CONTROLLER_H
 #define RESULTS_

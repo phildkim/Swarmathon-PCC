@@ -6,9 +6,12 @@
 #include "Tag.h"
 #include <math.h>
 
+
 class DropOffController : virtual Controller
 {
 public:
+
+
   DropOffController();
   ~DropOffController();
 
@@ -20,17 +23,18 @@ public:
   bool IsChangingMode();
   void SetCenterLocation(Point center);
   void SetCurrentLocation(Point current);
+  void SetDropoffLocation(Point dropoff);
   void SetTargetPickedUp();
   void SetBlockBlockingUltrasound(bool blockBlock);
   void SetTargetData(vector<Tag> tags);
   bool HasTarget() {return targetHeld;}
-
+  void SetType();
+  void changeType();
   float GetSpinner() {return spinner;}
 
   void UpdateData(vector<Tag> tags);
-
   void SetCurrentTimeInMilliSecs( long int time );
-
+   Point currentLocation;
 private:
 
   void ProcessData();
@@ -78,7 +82,8 @@ private:
 
   //Center and current locations as of the last call to setLocationData
   Point centerLocation;
-  Point currentLocation;
+  Point dropOffLocation;
+
 
   //Time since modeTimer was started, in seconds
   float timerTimeElapsed;

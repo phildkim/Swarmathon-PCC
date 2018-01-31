@@ -267,6 +267,7 @@ void LogicController::controllerInterconnect()
     if(pickUpController.GetTargetHeld()) 
     {
       dropOffController.SetTargetPickedUp();
+      dropOffController.SetDropoffLocation(dropOffController.currentLocation);//Here it is
       obstacleController.setTargetHeld();
       searchController.SetSuccesfullPickup();
     }
@@ -387,4 +388,10 @@ void LogicController::SetModeManual()
     control_queue = priority_queue<PrioritizedController>();
     driveController.Reset();
   }
+}
+void LogicController::setRobotType(){
+    if(this->id%3!=0){
+        dropOffController.changeType();
+        searchController.setType();
+    }
 }
