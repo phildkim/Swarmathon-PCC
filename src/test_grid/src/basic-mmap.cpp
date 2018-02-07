@@ -12,17 +12,19 @@
 
 bool getCoordinateData(ccny_srvs::GetCoordinates::Request& req, ccny_srvs::GetCoordinates::Response& res, uint8_t * ptr) {
 	res.data = *(ptr + req.offset);
+	ROS_INFO("Reading from address [%p]", (ptr + req.offset));
 }
 
 bool setCoordinateData(ccny_srvs::SetCoordinates::Request& req, ccny_srvs::SetCoordinates::Response& res, uint8_t * ptr) {
 	*(ptr + req.offset) = req.data;
+	ROS_INFO("Writing to address [%p]", (ptr + req.offset));
 }
 
 int main(int argc, char **argv) {
 	ros::init(argc, argv, "mmap_testing");
 	
 	uint8_t * base_addr = (uint8_t *) mmap(
-		(caddr_t) 0,
+		NULL,
 		getpagesize(),
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE,
