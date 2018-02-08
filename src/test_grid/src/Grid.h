@@ -1,3 +1,35 @@
+/** 
+ *  @file    Grid.h
+ *  @author  Eric Tung (Treayn)
+ *  @date    2/06/2017
+ *  @version 1.0 
+ *  
+ *  @brief Grid Class
+ *
+ *  @section DESCRIPTION
+ *  
+ *  The Grid Class has three important functions:
+ *  
+ *  Firstly, the Grid Class is responsible for updating
+ *    the state and size of the grid based on data
+ *    recieved from the local and/or remote rovers. 
+ *  
+ *  Secondly, given the state of the Grid, the Grid Class
+ *    periodically runs algorithms which allow it to
+ *    generate statistics such as:
+ *      - Percentage of map explored
+ *      - Probability of soil samples in an area of the map
+ *      - Probability of collisions with objects in an area
+ *          of the map
+ *      - etc.
+ *  
+ *  And Thirdly, the Grid Class is designed to expose an
+ *    API which allows for simple addition of Remote
+ *    Procedure Calls (in the form of ROS Services) to
+ *    be easily added to monitor new statuses and
+ *    statistics.
+**/
+
 #ifndef GRID_H
 #define GRID_H
 
@@ -26,17 +58,25 @@ private:
         typedef ccny_srvs::SetStatus::Request   set_status_request_t;
         typedef ccny_srvs::SetStatus::Response  set_status_response_t;
 	
+        ros::NodeHandle node;
+	
 	// Grid variables
 	std::deque<column_t> grid;
 	uint8_t x_size, y_size;
         uint8_t x_center, y_center;
 	
-        ros::NodeHandle node;
-	
 	// Grid mutators
+	
+	/**
+	 *  Grid::createCell()
+         *  ------------------
+         *  Cell() factory function. Call this instead of Cell()
+	 *    or Derived class constructors to create new Cells
+	 *    in the Grid.
+	**/
         std::unique_ptr<Cell> createCell();
-	void addColumn(int8_t); 
-	void addRow(int8_t);
+	void addColumns(int8_t); 
+	void addRows(int8_t);
 	
 	// Cell accessors & mutators
         bool getStatus(get_status_request_t&, get_status_response_t&, uint8_t, uint8_t);
@@ -45,22 +85,34 @@ private:
 	
 	// Convenience functions
 	Cell * getCell(int8_t, int8_t);
+	void checkGridBounds(int8_t, int8_t);
 
 public:
 	Grid();
 	Grid(uint8_t);
 	~Grid();
 	
-	// Dynamic Callback Registration
-	// -----------------------------
-	// These functions accept four arguments, and create (getter and setter) closures,
-	//	which may be invoked at a future point in time.
-	//
-	// The first argument specifies a parameter name to query for on the server.
-	//	Arguments 2, 3, and 4 specify where the parameter resides in memory.
-	//
-	// See std::function and std::bind for more details. (ROS uses boost::function
-	//	 and boost::bind internally for compatibility with C++03.)
+	/**
+	 *  Grid::registerStatusGetter(),
+	 *  Grid::registerStatusSetter()
+	 *  -----------------------------
+	 *  These functions allow for Dynamic Callback
+	 *    Registration for ROS Services. They create
+	 *    (getter and setter) closures which may be invoked
+	 *    by a future Remote Procedure Call.
+	 *  
+         *  These functions accept four arguments:
+         *  
+	 *  The first argument specifies a parameter name to
+	 *    query for on the server.
+	 *  
+	 *  Arguments 2, 3, and 4 specify where the parameter
+	 *    resides in memory.
+	 *
+	 *  See std::function and std::bind for more details.
+	 *    (ROS uses boost::function and boost::bind internally
+	 *    for compatibility with C++03.)
+	**/
         ros::ServiceServer registerStatusGetter(const std::string&, uint8_t, uint8_t);
         ros::ServiceServer registerStatusGetter(const std::string&, uint8_t, uint8_t, uint8_t);
         ros::ServiceServer registerStatusSetter(const std::string&, uint8_t, uint8_t, uint8_t);

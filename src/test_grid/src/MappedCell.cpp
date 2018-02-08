@@ -44,9 +44,15 @@ bool MappedCell::isMapFull() {
         return (MappedCell::mmap_free_addr - MappedCell::mmap_base_addr) >= MappedCell::mmap_stride;
 }
 
+
+MappedCell * const MappedCell::getFreeAddress() {
+	return MappedCell::mmap_free_addr;
+}
+
 MappedCell * const MappedCell::getCellAddress() {
 	return this->cell_base_addr;
 }
+
 
 uint8_t MappedCell::getCellStatus(uint8_t stride) const {
 	return *(this->data_status_registers + stride);

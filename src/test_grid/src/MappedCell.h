@@ -55,8 +55,10 @@ public:
         static void initializeMap();
         static void cleanupMap();
         static bool isMapFull();
-
-        MappedCell * const getCellAddress() override; // For debugging
+	
+	// Test functions
+	static MappedCell * const getFreeAddress();
+        MappedCell * const getCellAddress() override;
 
         uint8_t getCellStatus(uint8_t) const override;
         void setCellStatus(uint8_t, uint8_t) override;

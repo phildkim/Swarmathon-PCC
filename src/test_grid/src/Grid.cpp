@@ -14,15 +14,31 @@ Grid::Grid(uint8_t size) :
 	x_center(size/2),
 	y_center(size/2)
 {
+	uint8_t x_test = 0;		// For Testing
+	
 	// Resize Rows.
 	grid.resize(size);
-	std::for_each(grid.begin(), grid.end(), [size] (column_t& column) {
+	std::for_each(grid.begin(), grid.end(), [size, &x_test] (column_t& column) {
+		uint8_t y_test = 0;	// For Testing
+		
 		// Resize Columns and generate Cells.
 		column.resize(size);
-		std::generate(column.begin(), column.end(), []() {
+		std::generate(column.begin(), column.end(), [&x_test, &y_test]() {
+			ROS_INFO(	// Debug Message
+				"[grid_service] Constructing new MappedCell at (%u, %u) with address [%p]",
+				x_test,
+				y_test,
+				MappedCell::getFreeAddress()
+			);
+			y_test++;
+			
 			return std::unique_ptr<MappedCell>{ new MappedCell() };
 		});
+		
+		x_test++;
 	});
+	
+	ROS_INFO("Grid initialized with [%u] Rows and Columns");
 }
 
 Grid::~Grid() {
@@ -52,19 +68,18 @@ ros::ServiceServer Grid::registerStatusSetter(const std::string &name, uint8_t s
 }
 
 /* Private Methods */
-
-// Grid::CreateCell()
-// ------------------
-// Cell() factory function. Call this instead of Cell() or derived class constructors
-//	to create new Cells in the grid.
 std::unique_ptr<Cell> Grid::createCell() {
-	if(MappedCell::isMapFull())
+	if(MappedCell::isMapFull()) {
+		ROS_INFO("[grid_service] Allocating Cell on Heap");
 		return std::unique_ptr<AllocatedCell>{ new AllocatedCell() };
-	else
+	}
+	else {
+		ROS_INFO("[grid_service] Allocating Cell on Memory Map at address [%p]", MappedCell::getFreeAddress());
 		return std::unique_ptr<MappedCell>{ new MappedCell() };
+	}
 }
 
-void Grid::addColumn(int8_t x) {
+void Grid::addColumns(int8_t x) {
 	x_size++; // Expand overall grid size.
 	
 	// Insert Column vector to the right and resize it.
@@ -76,6 +91,8 @@ void Grid::addColumn(int8_t x) {
 		std::generate(grid.back().begin(), grid.back().end(), [this]() {
 			return this->createCell();
 		});
+		
+		ROS_INFO("[grid_service] Added Column(s) to the right of grid");
 	}
 	// Insert Column vector to the left and shift grid center to the right.
 	else if((int8_t) (x_center - grid.size()) > x) {
@@ -86,34 +103,35 @@ void Grid::addColumn(int8_t x) {
 		std::generate(grid.front().begin(), grid.front().end(), [this]() {
 			return this->createCell();
 		});
-	}
-	else {
-		x_size--;
+		
+		ROS_INFO("[grid_service] Added Column(s) to the left of grid");
 	}
 }
 
-void Grid::addRow(int8_t y) {
+void Grid::addRows(int8_t y) {
 	y_size++;
 	
 	// Insert Row at bottom by appending a Cell at the back of each Column vector.
 	if(	(int8_t) (grid[0].size() - y_center) < y) {
 		std::for_each(grid.begin(), grid.end(), [this](column_t& col) { col.push_back(this->createCell()); });
+		ROS_INFO("[grid_service] Added Row(s) at bottom of grid");
 	}
 	// Insert Row at top by appending a Cell at the front of each Column vector.
 	else if((int8_t) (y_center - grid[0].size()) > y) {
 		y_center++;
 		std::for_each(grid.begin(), grid.end(), [this](column_t& col) { col.push_front(this->createCell()); });
-	}
-	else {
-		y_size--;
+		ROS_INFO("[grid_service] Added Row(s) at top of grid");
 	}
 }
 
 bool Grid::getStatus(get_status_request_t& req, get_status_response_t& res, uint8_t stride, uint8_t mask) {
+	checkGridBounds(req.x, req.y);
         res.data = (bool) getCell(req.x, req.y)->getCellStatus(stride) & mask;
 	
 	ROS_INFO(
-		"[grid_service] Status Register at [%p] contains: [%u]",
+		"[grid_service] Status Register of Cell (%d, %d) at address [%p] contains: [%u]",
+		req.x + x_center,
+		req.y + y_center,
 		getCell(req.x, req.y)->getCellAddress(),
 		res.data
 	);
@@ -122,10 +140,13 @@ bool Grid::getStatus(get_status_request_t& req, get_status_response_t& res, uint
 }
 
 bool Grid::getStatus(get_status_request_t& req, get_status_response_t& res, uint8_t stride, uint8_t offset, uint8_t mask) {
+	checkGridBounds(req.x, req.y);
 	res.data = (getCell(req.x, req.y)->getCellStatus(stride) & mask) >> offset;
 	
 	ROS_INFO(
-		"[grid_service] Status Register at [%p] contains: [%u]",
+		"[grid_service] Status Register of Cell (%d, %d) at address [%p] contains: [%u]",
+		req.x + x_center,
+		req.y + y_center,
 		getCell(req.x, req.y)->getCellAddress(),
 		res.data
 	);
@@ -134,12 +155,15 @@ bool Grid::getStatus(get_status_request_t& req, get_status_response_t& res, uint
 }
 
 bool Grid::setStatus(set_status_request_t& req, set_status_response_t& res, uint8_t stride, uint8_t offset, uint8_t mask) {
+	checkGridBounds(req.x, req.y);
 	uint8_t status_data = (getCell(req.x, req.y)->getCellStatus(stride) & mask) >> offset;
 	if(req.data != status_data)
 		getCell(req.x, req.y)->setCellStatus(stride, status_data ^ (1 << offset));
 	
 	ROS_INFO(
-		"[grid_service] Status Register at [%p] is now set to: [%u]",
+		"[grid_service] Status Register of Cell (%d, %d) at address [%p] is now set to: [%u]",
+		req.x + x_center,
+		req.y + y_center,
 		getCell(req.x, req.y)->getCellAddress(),
 		status_data ^ (1 << offset)
 	);
@@ -149,4 +173,28 @@ bool Grid::setStatus(set_status_request_t& req, set_status_response_t& res, uint
 
 Cell * Grid::getCell(int8_t x, int8_t y) {
 	return grid.at((int8_t) x_center + x).at((int8_t) y_center + y).get();
+}
+
+void Grid::checkGridBounds(int8_t x, int8_t y) {
+	ROS_INFO(
+		"[grid_service] Grid bounds currently are (%d, %d) (top-left) and (%d, %d) (bottom-right)",
+		x_center - grid.size(),
+		y_center - grid[0].size(),
+		grid.size() - x_center,
+		grid[0].size() - y_center
+	);
+	ROS_INFO(
+		"[grid_service] Attemping to access cell (%d, %d):",
+		x,
+		y
+	);	
+
+	if((grid.size() - x_center < x) || (x_center - grid.size() > x)) {
+		ROS_INFO("[grid_service] ERROR: Grid too small, adding Columns");
+		addColumns(x);
+	}
+	if((grid[0].size() - y_center < y) || (y_center - grid[0].size() > y)) {
+		ROS_INFO("[grid_service] ERROR: Grid too small, adding Rows");
+		addRows(y);
+	}
 }
