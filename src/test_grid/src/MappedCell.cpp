@@ -1,3 +1,4 @@
+#include <cmath>
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <new>
@@ -6,7 +7,10 @@
 #include "MappedCell.h"
 
 // Static Class Variables
-uint32_t MappedCell::page_size = getpagesize() * 17;
+const size_t MappedCell::cell_size = sizeof(uint8_t) * 3;
+const size_t MappedCell::page_size = std::ceil(150 * 150 * cell_size/(float) getpagesize()) * getpagesize();
+const size_t MappedCell::mmap_stride = MappedCell::page_size/MappedCell::cell_size;
+
 uint8_t * MappedCell::mmap_base_addr = (uint8_t *) mmap(
 	NULL,
 	MappedCell::page_size,
@@ -15,11 +19,7 @@ uint8_t * MappedCell::mmap_base_addr = (uint8_t *) mmap(
 	-1,
 	0
 );
-
 uint8_t * MappedCell::mmap_free_addr = MappedCell::mmap_base_addr;
-
-const size_t MappedCell::cell_size = sizeof(uint8_t) * 3;
-const size_t MappedCell::mmap_stride = MappedCell::page_size/MappedCell::cell_size;
 
 const uint8_t MappedCell::STATUS_REGISTER_OFFSET = 0;
 const uint8_t MappedCell::STATISTIC_REGISTER_OFFSET = 3;
@@ -45,12 +45,24 @@ void MappedCell::cleanupMap() {
 }
 
 bool MappedCell::isMapFull() {
-        return (MappedCell::mmap_free_addr - MappedCell::mmap_base_addr) >= MappedCell::mmap_stride;
+        return (MappedCell::mmap_free_addr - MappedCell::mmap_base_addr)/MappedCell::cell_size > MappedCell::mmap_stride;
 }
 
 
+uint8_t * const MappedCell::getBaseAddress() {
+	return MappedCell::mmap_base_addr;
+}
+
 uint8_t * const MappedCell::getFreeAddress() {
 	return MappedCell::mmap_free_addr;
+}
+
+size_t MappedCell::getCellSize() {
+	return MappedCell::cell_size;
+}
+
+size_t MappedCell::getStride() {
+	return MappedCell::mmap_stride;
 }
 
 uint8_t * const MappedCell::getCellAddress() {

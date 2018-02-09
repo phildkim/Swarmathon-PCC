@@ -40,8 +40,11 @@ Grid::Grid(uint8_t size) :
 	});
 	
 	ROS_INFO("[grid_service] Grid initialized with [%u] Rows and Columns", size);
-	ROS_INFO("[grid_service] Size of Cell is [%zu] bytes", sizeof(uint) * 3);
+	ROS_INFO("[grid_service] Size of Cell is [%zu] bytes", sizeof(uint8_t) * 3);
 	ROS_INFO("[grid_service] Size of MappedCell is [%zu] bytes", sizeof(MappedCell));
+	ROS_INFO("[grid_service] Stride of mmapped region is [%zu] cells", MappedCell::getStride());
+	ROS_INFO("[grid_service] Start of mmapped region is [%p]", MappedCell::getBaseAddress());
+	ROS_INFO("[grid_service] End of mmapped region is [%p]", MappedCell::getBaseAddress() + MappedCell::getStride() * MappedCell::getCellSize());
 }
 
 Grid::~Grid() {
@@ -83,47 +86,74 @@ std::unique_ptr<Cell> Grid::createCell() {
 }
 
 void Grid::addColumns(int8_t x) {
-	x_size++; // Expand overall grid size.
-	
-	// Insert Column vector to the right and resize it.
 	if(	(int8_t) (grid.size() - x_center) < x) {
-		grid.push_back(column_t());
-		grid.back().resize(y_size);
+		// Expand grid size.
+		x_size += x - (grid.size() - x_center);
 		
-		// Fill Column vector with cells.
-		std::generate(grid.back().begin(), grid.back().end(), [this]() {
-			return this->createCell();
+		ROS_INFO(
+			"[grid_service] Adding [%d] Column(s) to the right of grid",
+			x_size - grid.size()
+		);
+
+		// Insert Column vector(s) to the right.
+		std::generate_n(std::back_inserter(grid), x_size - grid.size(), [this]() {
+			// Resize and fill Column vector(s).
+			column_t col;
+			col.resize(y_size);
+			std::generate(col.begin(), col.end(), [this]() { return this->createCell(); });	
+			return col;
 		});
-		
-		ROS_INFO("[grid_service] Added Column(s) to the right of grid");
 	}
 	// Insert Column vector to the left and shift grid center to the right.
 	else if((int8_t) (x_center - grid.size()) > x) {
-		x_center++;
-		grid.push_front(column_t());
-		grid.front().resize(y_size);
+		// Expand grid size & move grid center.
+		x_size += (x_center - grid.size()) - x;
+		x_center += x_size - grid.size();
 		
-		std::generate(grid.front().begin(), grid.front().end(), [this]() {
-			return this->createCell();
+		ROS_INFO(
+			"[grid_service] Adding [%d] Column(s) to the left of grid",
+			x_size - grid.size()
+		);
+		
+		// Insert Column vector(s) to the left.
+		std::generate_n(std::front_inserter(grid), x_size - grid.size(), [this]() {
+			// Resize and fill Column vector(s)
+			column_t col;
+			col.resize(y_size);
+			std::generate(col.begin(), col.end(), [this]() { return this->createCell(); });
+			return col;
 		});
-		
-		ROS_INFO("[grid_service] Added Column(s) to the left of grid");
 	}
 }
 
 void Grid::addRows(int8_t y) {
-	y_size++;
-	
 	// Insert Row at bottom by appending a Cell at the back of each Column vector.
 	if(	(int8_t) (grid[0].size() - y_center) < y) {
-		std::for_each(grid.begin(), grid.end(), [this](column_t& col) { col.push_back(this->createCell()); });
-		ROS_INFO("[grid_service] Added Row(s) at bottom of grid");
+		// Expand grid size.
+		y_size += y - (grid[0].size() - y_center);
+		
+		ROS_INFO(
+			"[grid_service] Adding [%d] Row(s) to bottom of grid",
+			y_size - grid[0].size()
+		);
+		
+		std::for_each(grid.begin(), grid.end(), [this](column_t& col) {
+			std::generate_n(std::back_inserter(col), y_size - grid[0].size(), [this]() { return this->createCell(); });
+		});
 	}
 	// Insert Row at top by appending a Cell at the front of each Column vector.
 	else if((int8_t) (y_center - grid[0].size()) > y) {
-		y_center++;
-		std::for_each(grid.begin(), grid.end(), [this](column_t& col) { col.push_front(this->createCell()); });
-		ROS_INFO("[grid_service] Added Row(s) at top of grid");
+		y_size += (y_center - grid[0].size()) - y;
+		y_center += y_size - grid[0].size();
+		
+		ROS_INFO(
+			"[grid_service] Adding [%d] Row(s) to top of grid",
+			y_size - grid[0].size()
+		);
+		
+		std::for_each(grid.begin(), grid.end(), [this](column_t& col) {
+			std::generate_n(std::front_inserter(col), y_size - grid[0].size(), [this]() { return this->createCell(); });
+		});
 	}
 }
 
