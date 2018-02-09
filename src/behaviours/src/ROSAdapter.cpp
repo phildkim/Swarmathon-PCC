@@ -31,7 +31,7 @@
 
 #include "Point.h"
 #include "Tag.h"
-#include "CreateLog.h"
+//#include "CreateLog.h"
 
 // To handle shutdown signals so the node quits
 // properly in response to "rosnode kill"
@@ -207,7 +207,7 @@ int main(int argc, char **argv) {
   joySubscriber = mNH.subscribe((publishedName + "/joystick"), 10, joyCmdHandler);
   modeSubscriber = mNH.subscribe((publishedName + "/mode"), 1, modeHandler);
   targetSubscriber = mNH.subscribe((publishedName + "/targets"), 10, targetHandler);
-  odometrySubscriber = mNH.subscribe((publishedName + "/odom/filtered"), 10, odometryHandler);
+  odometrySubscriber = mNH.subscribe((publishedName + "/odom"), 10, odometryHandler);
   mapSubscriber = mNH.subscribe((publishedName + "/odom/ekf"), 10, mapHandler);
   virtualFenceSubscriber = mNH.subscribe(("/virtualFence"), 10, virtualFenceHandler);
   manualWaypointSubscriber = mNH.subscribe((publishedName + "/waypoints/cmd"), 10, manualWaypointHandler);
@@ -329,8 +329,8 @@ void behaviourStateMachine(const ros::TimerEvent&)
     //ask logic controller for the next set of actuator commands
     result = logicController.DoWork();
     std_msgs::String datamsg;
-    new CreateLog(&datamsg,&result);
-    infoLogPublisher.publish(datamsg);
+    //new CreateLog(&datamsg,&result);
+    //infoLogPublisher.publish(datamsg);
 
     bool wait = false;
     

@@ -1,5 +1,6 @@
 #include "LogicController.h"
-
+#include "CreateLog.h"
+#include <ros/ros.h>
 LogicController::LogicController() {
 
   logicState = LOGIC_STATE_INTERRUPT;
@@ -28,6 +29,8 @@ void LogicController::Reset() {
 //This function is called every 1/10th second by the ROSAdapter
 //The logical flow if the behaviours is controlled here by using a interrupt, haswork, priority queue system.
 Result LogicController::DoWork() {
+    ros::NodeHandle n;
+    ros::Publisher res = n.advertise<std_msgs::String>("/infoLog",10);
   Result result;
 
   //first a loop runs through all the controllers who have a priority of 0 or above witht he largest number being
@@ -46,6 +49,7 @@ Result LogicController::DoWork() {
 
   //when an interrupt has been thorwn or there are no pending control_queue.top().actions logic controller is in this state.
   case LOGIC_STATE_INTERRUPT: {
+      //ROS_WARN("%s","INTERRUPT");
     //Reset the control queue
     control_queue = priority_queue<PrioritizedController>();
 
@@ -60,6 +64,7 @@ Result LogicController::DoWork() {
         }
       }
     }
+    //ROS_FATAL("%s","end");
 
     //if no controlers have work report this to ROS Adapter and do nothing.
     if(control_queue.empty()) {
@@ -74,7 +79,25 @@ Result LogicController::DoWork() {
 
     //take the top member of the priority queue and run their do work function.
     result = control_queue.top().controller->DoWork();
-
+    std_msgs::String msg;
+    CreateLog tmp(&msg,&result);
+    msg.data+=dropOffController.getdata();
+    res.publish(msg);
+//    if(control_queue.top().controller->toString().compare("DriveController")==0){
+//        ROS_FATAL("%s","drivecontroller");
+//    }else if(control_queue.top().controller->toString().compare("DropController")==0){
+//        ROS_FATAL("%s","dropcontroller");
+//    }else if(control_queue.top().controller->toString().compare("ManualController")==0){
+//        ROS_FATAL("%s","manualcontroller");
+//    }else if(control_queue.top().controller->toString().compare("ObstacleController")==0){
+//        ROS_FATAL("%s","obstaclecontroller");
+//    }else if(control_queue.top().controller->toString().compare("PickupController")==0){
+//        ROS_FATAL("%s","pickupcontroller");
+//    }else if(control_queue.top().controller->toString().compare("RangeController")==0){
+//        ROS_FATAL("%s","Rangecontroller");
+//    }else if(control_queue.top().controller->toString().compare("SearchController")==0){
+//        ROS_FATAL("%s","searchcontroller");
+//    }
     //anaylyze the result that was returned and do state changes accordingly
     //behavior types are used to indicate behavior changes of some form
     if(result.type == behavior) {
@@ -82,14 +105,17 @@ Result LogicController::DoWork() {
       //ask for an external reset so the state of the controller is preserved untill after it has returned a result and
       //gotten a chance to communicate with other controllers
       if (result.reset) {
+        //ROS_ERROR("%s","THis is a reset");
         controllerInterconnect(); //allow controller to communicate state data before it is reset
         control_queue.top().controller->Reset();
       }
 
       //ask for the procces state to change to the next state or loop around to the begining
       if(result.b == nextProcess) {
+
         if (processState == _LAST - 1) {
-          processState = _FIRST;
+//            ROS_ERROR("%s","Next Process Last");
+            processState = _FIRST;
         }
         else {
           processState = (ProcessState)((int)processState + 1);
@@ -107,6 +133,14 @@ Result LogicController::DoWork() {
 
       //update the priorites of the controllers based upon the new process state.
       if (result.b == nextProcess || result.b == prevProcess) {
+//          ROS_ERROR("%s","We are processing data");
+//          if(processState==PROCCESS_STATE_DROP_OFF){
+//             ROS_WARN("%s","DROPOFF");
+//          }else if(processState==PROCCESS_STATE_TARGET_PICKEDUP){
+//              ROS_WARN("%s","PICKEDUP");
+//          }else if(processState==PROCCESS_STATE_SEARCHING){
+//              ROS_WARN("%s","SEARCHING");
+//          }
         ProcessData();
         result.b = wait;
         driveController.Reset(); //it is assumed that the drive controller may be in a bad state if interrupted so reset it
@@ -136,6 +170,7 @@ Result LogicController::DoWork() {
 
     //this case is primarly when logic controller is waiting for drive controller to reach its last waypoint
   case LOGIC_STATE_WAITING: {
+      //ROS_WARN("%s","WAITING");
     //ask drive controller how to drive
     //commands to be passed the ROS Adapter as left and right wheel PWM values in the result struct are returned
     result = driveController.DoWork();
@@ -152,7 +187,7 @@ Result LogicController::DoWork() {
 
     //used for precision driving pass through
   case LOGIC_STATE_PRECISION_COMMAND: {
-
+//ROS_WARN("%s","Precision");
     //unlike waypoints precision commands change every update tick so we ask the
     //controller for new commands on every update tick.
     result = control_queue.top().controller->DoWork();
@@ -191,6 +226,7 @@ void LogicController::ProcessData()
   //this controller priority is used when searching
   if (processState == PROCCESS_STATE_SEARCHING) 
   {
+//      ROS_ERROR("%s","pickup,obstacle,range,search");
     prioritizedControllers = {
       PrioritizedController{0, (Controller*)(&searchController)},
       PrioritizedController{10, (Controller*)(&obstacleController)},
@@ -204,6 +240,7 @@ void LogicController::ProcessData()
   //this priority is used when returning a target to the center collection zone
   else if (processState  == PROCCESS_STATE_TARGET_PICKEDUP) 
   {
+//      ROS_ERROR("%s","obstacle,range,dropoff");
     prioritizedControllers = {
     PrioritizedController{-1, (Controller*)(&searchController)},
     PrioritizedController{15, (Controller*)(&obstacleController)},
@@ -212,10 +249,12 @@ void LogicController::ProcessData()
     PrioritizedController{1, (Controller*)(&dropOffController)},
     PrioritizedController{-1, (Controller*)(&manualWaypointController)}
     };
+    dropOffController.SetDropoffLocation(dropOffController.currentLocation);
   }
   //this priority is used when returning a target to the center collection zone
   else if (processState  == PROCCESS_STATE_DROP_OFF)
   {
+//      ROS_ERROR("%s","range,dropoff");
     prioritizedControllers = {
       PrioritizedController{-1, (Controller*)(&searchController)},
       PrioritizedController{-1, (Controller*)(&obstacleController)},
@@ -224,6 +263,7 @@ void LogicController::ProcessData()
       PrioritizedController{1, (Controller*)(&dropOffController)},
       PrioritizedController{-1, (Controller*)(&manualWaypointController)}
     };
+
   }
   else if (processState == PROCESS_STATE_MANUAL) {
     // under manual control only the manual waypoint controller is active
@@ -267,7 +307,7 @@ void LogicController::controllerInterconnect()
     if(pickUpController.GetTargetHeld()) 
     {
       dropOffController.SetTargetPickedUp();
-      dropOffController.SetDropoffLocation(dropOffController.currentLocation);//Here it is
+
       obstacleController.setTargetHeld();
       searchController.SetSuccesfullPickup();
     }
@@ -276,6 +316,8 @@ void LogicController::controllerInterconnect()
   //ask if drop off has released the target from the claws yet
   if (!dropOffController.HasTarget()) 
   {
+    pickUpController.dropset=true;
+    //ROS_ERROR("%s","Target Clear");
     obstacleController.setTargetHeldClear();
   }
 
@@ -295,6 +337,7 @@ void LogicController::SetPositionData(Point currentLocation)
   obstacleController.setCurrentLocation(currentLocation);
   driveController.SetCurrentLocation(currentLocation);
   manualWaypointController.SetCurrentLocation(currentLocation);
+  //ROS_INFO("current x:%f y:%f",currentLocation.x,currentLocation.y);
 }
 
 // Recieves position in the world frame with global data (GPS)
@@ -390,7 +433,7 @@ void LogicController::SetModeManual()
   }
 }
 void LogicController::setRobotType(){
-    if(this->id%3!=0){
+    if(this->id%2!=0){
         dropOffController.changeType();
         searchController.setType();
     }

@@ -25,11 +25,11 @@ ms2.request.pickup = true;
 
 ccny_srvs::RobotType m3;
 
-if(client.call(ms)){
+//if(client.call(ms)){
 
-ROS_INFO("Sum: %s", ms.response.success?"true":"false");
+//ROS_INFO("Sum: %s", ms.response.success?"true":"false");
 
-}
+//}
 if(client2.call(ms2)){
 
     ROS_INFO("Sum: %d %d",(int)ms2.response.point.x,(int)ms2.response.point.y);

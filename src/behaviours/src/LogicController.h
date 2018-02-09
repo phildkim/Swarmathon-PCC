@@ -37,7 +37,7 @@ public:
   void UpdateData();
   bool ShouldInterrupt() override;
   bool HasWork() override;
-
+  string toString(){return "LogicController";}
   void SetAprilTags(vector<Tag> tags);
   void SetSonarData(float left, float center, float right);
   void SetPositionData(Point currentLocation);

@@ -1,7 +1,7 @@
 #include "PickUpController.h"
 #include <limits> // For numeric limits
 #include <cmath> // For hypot
-
+#include <ros/console.h>
 PickUpController::PickUpController()
 {
   lockTarget = false;
@@ -108,6 +108,7 @@ bool PickUpController::SetSonarData(float rangeCenter)
     result.b = nextProcess;
     result.reset = true;
     targetHeld = true;
+
     return true;
   }
 
@@ -140,6 +141,7 @@ void PickUpController::ProcessData()
     result.b = nextProcess;
     result.reset = true;
     targetHeld = true;
+
   }
   //Lower wrist and open fingures if no locked targt
   else if (!lockTarget)

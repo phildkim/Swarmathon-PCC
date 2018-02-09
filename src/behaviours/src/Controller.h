@@ -32,6 +32,7 @@ public:
   //Returns whether or not a controller should be polled for a Result
   virtual bool HasWork() = 0;
   //to do check this enum type
+  virtual string toString()=0;
 protected:
 
   //Looks at external data and determines if an interrupt must be thrown

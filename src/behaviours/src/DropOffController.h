@@ -6,7 +6,6 @@
 #include "Tag.h"
 #include <math.h>
 
-
 class DropOffController : virtual Controller
 {
 public:
@@ -19,7 +18,7 @@ public:
   Result DoWork() override;
   bool ShouldInterrupt() override;
   bool HasWork() override;
-
+  string toString(){return "DropController";}
   bool IsChangingMode();
   void SetCenterLocation(Point center);
   void SetCurrentLocation(Point current);
@@ -31,7 +30,7 @@ public:
   void SetType();
   void changeType();
   float GetSpinner() {return spinner;}
-
+  string getdata();
   void UpdateData(vector<Tag> tags);
   void SetCurrentTimeInMilliSecs( long int time );
    Point currentLocation;
@@ -115,7 +114,7 @@ private:
 
   //Flag to indicate that we're starting to follow waypoints
   bool startWaypoint;
-
+  bool dropset;
   Result result;
 
   long int current_time;

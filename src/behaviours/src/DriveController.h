@@ -15,7 +15,7 @@ public:
   Result DoWork() override;
   bool ShouldInterrupt() override;
   bool HasWork() override;
-
+  string toString(){return "DriveController";}
   void SetResultData(Result result) {this->result = result;}
   void SetVelocityData(float linearVelocity,float angularVelocity);
   void SetCurrentLocation(Point currentLocation) {this->currentLocation = currentLocation;}

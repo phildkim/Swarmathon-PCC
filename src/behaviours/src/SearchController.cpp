@@ -1,7 +1,11 @@
 #include <algorithm>
 #include "SearchController.h"
 #include <angles/angles.h>
+#include <ros/ros.h>
+#include "ccny_srvs/GetPickup.h"
+#include <math.h>
 static int type = 1 ;
+
 SearchController::SearchController() {
   rng = new random_numbers::RandomNumberGenerator();
   currentLocation.x = 0;
@@ -27,9 +31,11 @@ void SearchController::Reset() {
  * This code implements a basic random walk search.
  */
 Result SearchController::DoWork() {
+    ros::NodeHandle nm;
+    ros::ServiceClient pickup_req = nm.serviceClient<ccny_srvs::GetPickup>("pickupgetter");
 
   if (!result.wpts.waypoints.empty()) {
-    if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.15) {
+    if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.3) {
       attemptCount = 0;
     }
   }
@@ -49,16 +55,44 @@ Result SearchController::DoWork() {
 
     result.type = waypoint;
     Point  searchLocation;
-
+    float radius;
+    float angle;
+    float curr_angle;
     //select new position 50 cm from current location
     if (first_waypoint)
     {
       first_waypoint = false;
       switch(type){
-      case 0: break;
-      case 1: break;
-      }
+      case 0:
+          if(currentLocation.x!=0){
+          curr_angle = atan(currentLocation.y/currentLocation.x);
+          }
+          radius = +rng->uniformReal(3,5);
+          angle = (curr_angle+rng->uniformReal(-M_PI/2,M_PI/2));
+          searchLocation.x = radius*cos(angle);
+          searchLocation.y = radius*sin(angle);
 
+          break;
+      case 1:
+          ccny_srvs::GetPickup msg;
+          msg.request.pickup = true;
+          pickup_req.call(msg);
+          if(!msg.response.empty){
+              searchLocation.x=msg.response.point.x;
+              searchLocation.y=msg.response.point.y;
+              ROS_WARN("pickup x:%f y:%f",searchLocation.x,searchLocation.y);
+          }else{
+              if(currentLocation.x!=0){
+              curr_angle = atan(currentLocation.y/currentLocation.x);
+              }
+              radius = +rng->uniformReal(0.5,2);
+              angle = (curr_angle+rng->uniformReal(-M_PI/2,M_PI/2));
+           searchLocation.x = radius*cos(angle);
+           searchLocation.y = radius*sin(angle);
+
+          }
+          break;
+      }
       // insert the next locaiton here.
       //
     }
@@ -67,11 +101,40 @@ Result SearchController::DoWork() {
       //select new heading from Gaussian distribution around current heading
       //iNSERT NEXT LOCATION HERe.
         switch(type){
-        case 0: break;
-        case 1: break;
+        case 0:
+            if(currentLocation.x!=0){
+            curr_angle = atan(currentLocation.y/currentLocation.x);
+            }
+            radius = +rng->uniformReal(3,5);
+            angle = (curr_angle+rng->uniformReal(-M_PI/2,M_PI/2));
+            searchLocation.x = radius*cos(angle);
+            searchLocation.y = radius*sin(angle);
+            break;
+
+        case 1:
+        {
+            ccny_srvs::GetPickup msg;
+            msg.request.pickup = true;
+            pickup_req.call(msg);
+            if(!msg.response.empty){
+                searchLocation.x=msg.response.point.x;
+                searchLocation.y=msg.response.point.y;
+                ROS_WARN("pickup x:%f y:%f",searchLocation.x,searchLocation.y);
+            }else{
+                if(currentLocation.x!=0){
+                curr_angle = atan(currentLocation.y/currentLocation.x);
+                }
+                radius = +rng->uniformReal(0.5,2);
+                angle = (curr_angle+rng->uniformReal(-M_PI/2,M_PI/2));
+             searchLocation.x = radius*cos(angle);
+             searchLocation.y = radius*sin(angle);
+
+            }
+            break;
+        }
         }
     }
-
+    //ROS_WARN("x:%f y:%f radius:%f angle:%f" ,searchLocation.x,searchLocation.y,radius,angle);
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
     

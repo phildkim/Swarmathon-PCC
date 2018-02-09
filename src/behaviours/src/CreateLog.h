@@ -15,7 +15,7 @@ class CreateLog{
 public:
         CreateLog(std_msgs::String *,Result*);
         void getLog();
-private:
+
         Result * res;
         std_msgs::String * msg;
 

@@ -2,6 +2,7 @@
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <ros/console.h>
+#include "ccny_srvs/SetPickup.h"
 static int robottype = 1;
 
 
@@ -34,16 +35,17 @@ DropOffController::~DropOffController() {
 }
 
 Result DropOffController::DoWork(){
-
+    ros::NodeHandle gm;
+    ros::ServiceClient putdown = gm.serviceClient<ccny_srvs::SetPickup>("pickupsetter");
     switch(robottype){
 case 1:
     {
   cout << "8" << endl;
-  ROS_WARN("%s","HELLOWORLD  ");
+  //ROS_WARN("%s","HELLOWORLD  ");
   int count = countLeft + countRight;
 
   if(timerTimeElapsed > -1) {
-    ROS_WARN("%s","timeTimeElapsed is greater than negative one");
+    //ROS_WARN("%s","timeTimeElapsed is greater than negative one");
     long int elapsed = current_time - returnTimer;
     timerTimeElapsed = elapsed/1e3; // Convert from milliseconds to seconds
   }
@@ -55,10 +57,10 @@ case 1:
     cout << "2" << endl;
     if (timerTimeElapsed >= 5)
     {
-        ROS_WARN("%s","We have reached collection point and also timer is greater than 5");
+        //ROS_WARN("%s","We have reached collection point and also timer is greater than 5");
       if (finalInterrupt)
       {
-        ROS_WARN("%s","This is the final interrupt");
+        //ROS_WARN("%s","This is the final interrupt");
         result.type = behavior;
         result.b = nextProcess;
         result.reset = true;
@@ -66,14 +68,14 @@ case 1:
       }
       else
       {
-        ROS_WARN("%s","FInal Interupt is true ");
+        //ROS_WARN("%s","FInal Interupt is true ");
         finalInterrupt = true;
         cout << "1" << endl;
       }
     }
     else if (timerTimeElapsed >= 0.1)
     {
-      ROS_WARN("%s","TImer is greater than 0.1 and not greater than 5");
+      //ROS_WARN("%s","TImer is greater than 0.1 and not greater than 5");
       isPrecisionDriving = true;
       result.type = precisionDriving;
 
@@ -91,7 +93,7 @@ case 1:
   //double distanceToLocation = hypot(this->currentLocation.x/2,this->currentLocation.y/2);// This must be moved to a controlled area where specific functions are set for different robot types.
   //check to see if we are driving to the center location or if we need to drive in a circle and look.
   if (distanceToCenter > collectionPointVisualDistance && !circularCenterSearching && (count == 0)) {
-    ROS_WARN("%s","DIstance is greater than collection point visual distance");
+    //ROS_WARN("%s","DIstance is greater than collection point visual distance");
     result.type = waypoint;
     result.wpts.waypoints.clear();
     result.wpts.waypoints.push_back(this->centerLocation);
@@ -105,7 +107,7 @@ case 1:
   }
   else if (timerTimeElapsed >= 2)//spin search for center
   {
-    ROS_WARN("%s","We are spin searching");
+    //ROS_WARN("%s","We are spin searching");
     Point nextSpinPoint;
 
     //sets a goal that is 60cm from the centerLocation and spinner
@@ -139,14 +141,14 @@ case 1:
 
   //reset lastCenterTagThresholdTime timout timer to current time
   if ((!centerApproach && !seenEnoughCenterTags) || (count > 0 && !seenEnoughCenterTags)) {
-    ROS_WARN("%s","We are resetting LastcenterTagThreshold");
+    //ROS_WARN("%s","We are resetting LastcenterTagThreshold");
     lastCenterTagThresholdTime = current_time;
 
   }
 
   if (count > 0 || seenEnoughCenterTags || prevCount > 0) //if we have a target and the center is located drive towards it.
   {
-    ROS_WARN("%s","we have a target and the center is located drive towards it");
+    //ROS_WARN("%s","we have a target and the center is located drive towards it");
     cout << "9" << endl;
     centerSeen = true;
 
@@ -226,7 +228,7 @@ case 1:
   //was on approach to center and did not seenEnoughCenterTags
   //for lostCenterCutoff seconds so reset.
   else if (centerApproach) {
-
+    //ROS_WARN("%s","center approach");
     long int elapsed = current_time - lastCenterTagThresholdTime;
     float timeSinceSeeingEnoughCenterTags = elapsed/1e3; // Convert from milliseconds to seconds
     if (timeSinceSeeingEnoughCenterTags > lostCenterCutoff)
@@ -259,7 +261,7 @@ case 1:
   }
   if (!centerSeen && seenEnoughCenterTags)
   {
-      ROS_WARN("%s","We have reached our collection point ");
+      //ROS_WARN("%s","We have reached our collection point ");
     reachedCollectionPoint = true;
     centerApproach = false;
     returnTimer = current_time;
@@ -267,10 +269,11 @@ case 1:
 
   return result;
     }
+   break;
   //THIS IS FOR THE SEARCHING ROBOTS
 case 0:
     {
-        ROS_WARN("%s","This is the starting of the second case");
+        //ROS_WARN("%s","This is the starting of the second case");
         int count = countLeft + countRight;
 
         if(timerTimeElapsed > -1) {
@@ -284,31 +287,41 @@ case 0:
         if(reachedCollectionPoint)
         {
           cout << "2" << endl;
-          if (timerTimeElapsed >= 2)
+          if (timerTimeElapsed >= 5)
           {
-            ROS_WARN("%s","Timer is greater than 5 seconds");
+            //ROS_WARN("%s","Timer is greater than 5 seconds");
             if (finalInterrupt)
             {
               result.type = behavior;
               result.b = nextProcess;
               result.reset = true;
+              dropset=true;
+              ccny_srvs::SetPickup msg;
+              msg.request.point.x = dropOffLocation.x;
+              msg.request.point.y = dropOffLocation.y;
+              ROS_WARN(" drop x:%f y:%f",dropOffLocation.x,dropOffLocation.y);
+              putdown.call(msg);
               return result;
             }
             else
             {
               finalInterrupt = true;
+              seenEnoughCenterTags = true;
+              first_center=false;
+              result.type=behavior;
+              result.b=wait;
               cout << "1" << endl;
             }
           }
-          else if (timerTimeElapsed >= 0.1)
+          else
           {
-            ROS_WARN("%s","we have reached our drop off but time is greater than 0.1 but less than 5");
+            //ROS_WARN("%s","we have reached our drop off but time is greater than 0.1 but less than 5");
             isPrecisionDriving = true;
             result.type = precisionDriving;
-
+            result.b=wait;
             result.fingerAngle = M_PI_2; //open fingers
             result.wristAngle = 0; //raise wrist
-
+            result.wpts.waypoints.clear();
             result.pd.cmdVel = -0.3;
             result.pd.cmdAngularError = 0.0;
           }
@@ -316,8 +329,8 @@ case 0:
           return result;
         }
         double distanceToLocation = hypot(this->dropOffLocation.x - this->currentLocation.x, this->dropOffLocation.y - this->currentLocation.y);
-        if(distanceToLocation> 0.2){
-            ROS_WARN("%s","Distance is greater than 0.2");
+        if(distanceToLocation> 0.2&&!dropset){
+            //ROS_WARN("%s","Distance is greater than 0.2");
             result.type = waypoint;
             result.wpts.waypoints.clear();
             result.wpts.waypoints.push_back(this->dropOffLocation);
@@ -329,13 +342,25 @@ case 0:
             return result;
 
           }else if(distanceToLocation <0.2){
+            ROS_ERROR("%s","Robot is close enough");
+            result.type=behavior;
+            result.b=nextProcess;
+            result.reset= false;
             reachedCollectionPoint = true;
             returnTimer = current_time;
+            return result;
+
+        }else{
+            result.type=behavior;
+            result.b=prevProcess;
+            dropset=false;
 
         }
         return result;
     }
+        break;
     }
+
 }
 
 void DropOffController::Reset() {
@@ -399,7 +424,7 @@ void DropOffController::SetTargetData(vector<Tag> tags) {
 void DropOffController::ProcessData() {
   if((countLeft + countRight) > 0) {
     isPrecisionDriving = true;
-  } else {
+  }else{
     startWaypoint = true;
   }
 }
@@ -464,5 +489,34 @@ void DropOffController::SetCurrentTimeInMilliSecs( long int time )
 }
 void DropOffController::changeType(){
     robottype = 0;
-    ROS_WARN("%s","WARNging");
+    //ROS_WARN("%s","WARNging");
+}
+string DropOffController::getdata(){
+    string msg="";
+    msg+="\ntargetHeld: ";
+    targetHeld?msg+="true":msg+="false";
+    msg+="\nreachedCollectionPoint: ";
+    reachedCollectionPoint?msg+="true":msg+="false";
+    msg+="\ncircularsearch: ";
+    circularCenterSearching?msg+="true":msg+="false";
+    msg+="\ncenterapproach: ";
+    centerApproach?msg+="true":msg+="false";
+    msg+="\nseenenough: ";
+    seenEnoughCenterTags?msg+="true":msg+="false";
+    msg+="\nisprecisiondriving: ";
+    isPrecisionDriving?msg+="true":msg+="false";
+    msg+="\nstartwaypoint: ";
+    startWaypoint?msg+="true":msg+="false";
+    msg+="\ninterrupt: ";
+    interrupt?msg+="true":msg+="false";
+    msg+="\nprecision interrupt: ";
+    precisionInterrupt?msg+="true":msg+="false";
+    msg+="\nfinalinterrupt: ";
+    finalInterrupt?msg+="true":msg+="false";
+    msg+="\nfirst center: ";
+    first_center?msg+="true":msg+="false";
+    msg+="\n";
+
+    return msg;
+
 }

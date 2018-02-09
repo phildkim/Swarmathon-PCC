@@ -22,9 +22,13 @@ return true;
 }
 bool getcords(getpickup::Request& req,getpickup::Response& res){
 
-if(req.pickup){
+if(req.pickup && !pickuplist.empty()){
 res.point=pickuplist.front();
 pickuplist.pop();
+res.empty=false;
+}else{
+    res.empty= true;
+
 }
 
 return true;
