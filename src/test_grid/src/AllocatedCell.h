@@ -34,7 +34,7 @@ public:
         AllocatedCell();
         ~AllocatedCell();
 
-        AllocatedCell * const getCellAddress() override;
+        uint8_t * const getCellAddress() override;
 
         uint8_t getCellStatus(uint8_t) const override;
         void setCellStatus(uint8_t, uint8_t) override;

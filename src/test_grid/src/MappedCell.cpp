@@ -7,7 +7,7 @@
 
 // Static Class Variables
 uint32_t MappedCell::page_size = getpagesize() * 17;
-MappedCell * MappedCell::mmap_base_addr = (MappedCell *) mmap(
+uint8_t * MappedCell::mmap_base_addr = (uint8_t *) mmap(
 	NULL,
 	MappedCell::page_size,
 	PROT_READ | PROT_WRITE,
@@ -16,15 +16,19 @@ MappedCell * MappedCell::mmap_base_addr = (MappedCell *) mmap(
 	0
 );
 
-MappedCell * MappedCell::mmap_free_addr = MappedCell::mmap_base_addr;
-size_t MappedCell::mmap_stride = MappedCell::page_size/sizeof(MappedCell);
+uint8_t * MappedCell::mmap_free_addr = MappedCell::mmap_base_addr;
+
+const size_t MappedCell::cell_size = sizeof(uint8_t) * 3;
+const size_t MappedCell::mmap_stride = MappedCell::page_size/MappedCell::cell_size;
+
+const uint8_t MappedCell::STATUS_REGISTER_OFFSET = 0;
+const uint8_t MappedCell::STATISTIC_REGISTER_OFFSET = 3;
 
 // Public Member Functions
 MappedCell::MappedCell() : 
-	cell_base_addr(MappedCell::mmap_free_addr),
-	data_status_registers((uint8_t *) MappedCell::mmap_free_addr)
+	cell_base_addr(MappedCell::mmap_free_addr)
 {
-	MappedCell::mmap_free_addr++;
+	MappedCell::mmap_free_addr += MappedCell::cell_size;
 }
 
 MappedCell::~MappedCell() {
@@ -32,7 +36,7 @@ MappedCell::~MappedCell() {
 }
 
 void MappedCell::initializeMap() {
-        if(MappedCell::mmap_base_addr == (MappedCell *) -1)
+        if(MappedCell::mmap_base_addr == (uint8_t *) -1)
                 throw std::bad_alloc();
 }
 
@@ -45,19 +49,19 @@ bool MappedCell::isMapFull() {
 }
 
 
-MappedCell * const MappedCell::getFreeAddress() {
+uint8_t * const MappedCell::getFreeAddress() {
 	return MappedCell::mmap_free_addr;
 }
 
-MappedCell * const MappedCell::getCellAddress() {
+uint8_t * const MappedCell::getCellAddress() {
 	return this->cell_base_addr;
 }
 
 
 uint8_t MappedCell::getCellStatus(uint8_t stride) const {
-	return *(this->data_status_registers + stride);
+	return *(this->cell_base_addr + MappedCell::STATUS_REGISTER_OFFSET + stride);
 }
 
 void MappedCell::setCellStatus(uint8_t stride, uint8_t data) {
-	*(this->data_status_registers + stride) = data;	
+	*(this->cell_base_addr + MappedCell::STATUS_REGISTER_OFFSET + stride) = data;	
 }

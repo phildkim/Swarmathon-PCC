@@ -40,14 +40,17 @@
 
 class MappedCell : public Cell {
 private:
-        static MappedCell * mmap_base_addr;
-        static MappedCell * mmap_free_addr;
-        static size_t mmap_stride;
-        static uint32_t page_size;
-
-        MappedCell * const cell_base_addr;
-        uint8_t * const data_status_registers;
-
+	static uint32_t page_size;
+        static uint8_t * mmap_base_addr;
+        static uint8_t * mmap_free_addr;
+	
+	static const size_t cell_size;
+        static const size_t mmap_stride;	
+	static const uint8_t STATUS_REGISTER_OFFSET;
+        static const uint8_t STATISTIC_REGISTER_OFFSET;
+        
+	uint8_t * const cell_base_addr;
+	
 public:
         MappedCell();
         ~MappedCell();
@@ -57,8 +60,8 @@ public:
         static bool isMapFull();
 	
 	// Test functions
-	static MappedCell * const getFreeAddress();
-        MappedCell * const getCellAddress() override;
+	static uint8_t * const getFreeAddress();
+        uint8_t * const getCellAddress() override;
 
         uint8_t getCellStatus(uint8_t) const override;
         void setCellStatus(uint8_t, uint8_t) override;

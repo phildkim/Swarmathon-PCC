@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iterator>
 
 #include "Grid.h"
 #include "AllocatedCell.cpp"
@@ -24,7 +25,7 @@ Grid::Grid(uint8_t size) :
 		// Resize Columns and generate Cells.
 		column.resize(size);
 		std::generate(column.begin(), column.end(), [&x_test, &y_test]() {
-			ROS_INFO(	// Debug Message
+			ROS_INFO(
 				"[grid_service] Constructing new MappedCell at (%u, %u) with address [%p]",
 				x_test,
 				y_test,
@@ -38,7 +39,9 @@ Grid::Grid(uint8_t size) :
 		x_test++;
 	});
 	
-	ROS_INFO("Grid initialized with [%u] Rows and Columns");
+	ROS_INFO("[grid_service] Grid initialized with [%u] Rows and Columns", size);
+	ROS_INFO("[grid_service] Size of Cell is [%zu] bytes", sizeof(uint) * 3);
+	ROS_INFO("[grid_service] Size of MappedCell is [%zu] bytes", sizeof(MappedCell));
 }
 
 Grid::~Grid() {
@@ -86,7 +89,7 @@ void Grid::addColumns(int8_t x) {
 	if(	(int8_t) (grid.size() - x_center) < x) {
 		grid.push_back(column_t());
 		grid.back().resize(y_size);
-				
+		
 		// Fill Column vector with cells.
 		std::generate(grid.back().begin(), grid.back().end(), [this]() {
 			return this->createCell();
@@ -190,11 +193,11 @@ void Grid::checkGridBounds(int8_t x, int8_t y) {
 	);	
 
 	if((grid.size() - x_center < x) || (x_center - grid.size() > x)) {
-		ROS_INFO("[grid_service] ERROR: Grid too small, adding Columns");
+		ROS_WARN("[grid_service] ERROR: Grid too small, adding Columns");
 		addColumns(x);
 	}
 	if((grid[0].size() - y_center < y) || (y_center - grid[0].size() > y)) {
-		ROS_INFO("[grid_service] ERROR: Grid too small, adding Rows");
+		ROS_WARN("[grid_service] ERROR: Grid too small, adding Rows");
 		addRows(y);
 	}
 }

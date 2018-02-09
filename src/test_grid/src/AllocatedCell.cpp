@@ -8,8 +8,8 @@ AllocatedCell::~AllocatedCell() {
 
 }
 
-AllocatedCell * const AllocatedCell::getCellAddress() {
-	return this;
+uint8_t * const AllocatedCell::getCellAddress() {
+	return (uint8_t *) this;
 }
 
 uint8_t AllocatedCell::getCellStatus(uint8_t stride) const {

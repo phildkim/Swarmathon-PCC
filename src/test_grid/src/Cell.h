@@ -30,7 +30,7 @@ class Cell {
 public:
 	virtual ~Cell() {};
 	
-	virtual Cell * const getCellAddress() = 0;
+	virtual uint8_t * const getCellAddress() = 0;
 	
 	virtual uint8_t getCellStatus(uint8_t) const = 0;
 	virtual void setCellStatus(uint8_t, uint8_t) = 0;
