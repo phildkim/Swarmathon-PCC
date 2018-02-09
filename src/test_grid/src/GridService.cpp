@@ -5,6 +5,13 @@ GridService::GridService() : data(0)
 
 GridService::~GridService() { }
 
+bool GridService::getStatus(ccny_srvs::GetStatus::Request& req, ccny_srvs::GetStatus::Response& res, uint8_t stride, uint8_t mask) {
+        res.data = (bool) (this->data & mask);
+        ROS_INFO("Status Register: [%u]", this->data);
+        res.success = true;
+        return true;
+}
+
 bool GridService::getStatus(ccny_srvs::GetStatus::Request& req, ccny_srvs::GetStatus::Response& res, uint8_t stride, uint8_t offset, uint8_t mask) {
         res.data = (this->data & mask) >> offset;
 	ROS_INFO("Status Register: [%u]", this->data);
@@ -18,6 +25,10 @@ bool GridService::setStatus(ccny_srvs::SetStatus::Request& req, ccny_srvs::SetSt
 	
         res.success = true;
         return true;
+}
+
+ros::ServiceServer GridService::registerStatusGetter(const std::string &name, uint8_t stride, uint8_t mask) {
+        return node.advertiseService<ccny_srvs::GetStatus::Request, ccny_srvs::GetStatus::Response>(name, boost::bind(&GridService::getStatus, this, _1, _2, stride, mask));
 }
 
 ros::ServiceServer GridService::registerStatusGetter(const std::string &name, uint8_t stride, uint8_t offset, uint8_t mask) {

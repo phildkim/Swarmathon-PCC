@@ -7,8 +7,8 @@
 #include <sys/mman.h>
 
 #include "ros/ros.h"
+#include "Cell.h"
 #include "Grid.h"
-#include "Grid.cpp"
 
 int main(int argc, char **argv) {
 	MappedCell::initializeMap();
@@ -39,6 +39,6 @@ int main(int argc, char **argv) {
 
 	ros::spin();
 
-	MappedCell::cleanupMap();
+	munmap(base_addr, getpagesize());
 	return 0;
 }
