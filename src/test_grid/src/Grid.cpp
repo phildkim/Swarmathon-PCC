@@ -14,37 +14,24 @@ Grid::Grid(uint8_t size) :
 	y_size(size),
 	x_center(size/2),
 	y_center(size/2)
-{
-	uint8_t x_test = 0;		// For Testing
-	
+{	
 	// Resize Rows.
-	grid.resize(size);
-	std::for_each(grid.begin(), grid.end(), [size, &x_test] (column_t& column) {
-		uint8_t y_test = 0;	// For Testing
-		
+	grid.resize(size + 1);
+	std::for_each(grid.begin(), grid.end(), [size] (column_t& column) {
 		// Resize Columns and generate Cells.
-		column.resize(size);
-		std::generate(column.begin(), column.end(), [&x_test, &y_test]() {
-			ROS_INFO(
-				"[grid_service] Constructing new MappedCell at (%u, %u) with address [%p]",
-				x_test,
-				y_test,
-				MappedCell::getFreeAddress()
-			);
-			y_test++;
-			
+		column.resize(size + 1);
+		std::generate(column.begin(), column.end(), []() {			
 			return std::unique_ptr<MappedCell>{ new MappedCell() };
 		});
-		
-		x_test++;
 	});
 	
-	ROS_INFO("[grid_service] Grid initialized with [%u] Rows and Columns", size);
-	ROS_INFO("[grid_service] Size of Cell is [%zu] bytes", sizeof(uint8_t) * 3);
-	ROS_INFO("[grid_service] Size of MappedCell is [%zu] bytes", sizeof(MappedCell));
-	ROS_INFO("[grid_service] Stride of mmapped region is [%zu] cells", MappedCell::getStride());
-	ROS_INFO("[grid_service] Start of mmapped region is [%p]", MappedCell::getBaseAddress());
-	ROS_INFO("[grid_service] End of mmapped region is [%p]", MappedCell::getBaseAddress() + MappedCell::getStride() * MappedCell::getCellSize());
+	ROS_INFO(
+		"[grid_service] Grid initialized with [%u] Rows and [%u] Columns with center at (%d, %d)",
+		x_size,
+		y_size,
+		x_center,
+		y_center
+	);
 }
 
 Grid::~Grid() {
@@ -76,50 +63,46 @@ ros::ServiceServer Grid::registerStatusSetter(const std::string &name, uint8_t s
 /* Private Methods */
 std::unique_ptr<Cell> Grid::createCell() {
 	if(MappedCell::isMapFull()) {
-		ROS_INFO("[grid_service] Allocating Cell on Heap");
+		ROS_DEBUG("[grid_service] Allocating Cell on Heap");
 		return std::unique_ptr<AllocatedCell>{ new AllocatedCell() };
 	}
 	else {
-		ROS_INFO("[grid_service] Allocating Cell on Memory Map at address [%p]", MappedCell::getFreeAddress());
+		ROS_DEBUG("[grid_service] Allocating Cell on Memory Map");
 		return std::unique_ptr<MappedCell>{ new MappedCell() };
 	}
 }
 
 void Grid::addColumns(int8_t x) {
-	if(	(int8_t) (grid.size() - x_center) < x) {
-		// Expand grid size.
-		x_size += x - (grid.size() - x_center);
+	if(	(int8_t) (x_size - x_center) < x) {	
+		// Calculate difference & expand grid size.
+		uint8_t diff = x - (x_size - x_center);
+		x_size += diff;
 		
-		ROS_INFO(
-			"[grid_service] Adding [%d] Column(s) to the right of grid",
-			x_size - grid.size()
-		);
+		ROS_WARN("[grid_service] WARNING: Grid too small, adding [%d] Column(s) to the right of grid", diff);
 
 		// Insert Column vector(s) to the right.
-		std::generate_n(std::back_inserter(grid), x_size - grid.size(), [this]() {
+		std::generate_n(std::back_inserter(grid), diff, [this]() {
 			// Resize and fill Column vector(s).
 			column_t col;
-			col.resize(y_size);
+			col.resize(grid[0].size());
 			std::generate(col.begin(), col.end(), [this]() { return this->createCell(); });	
 			return col;
 		});
 	}
 	// Insert Column vector to the left and shift grid center to the right.
-	else if((int8_t) (x_center - grid.size()) > x) {
-		// Expand grid size & move grid center.
-		x_size += (x_center - grid.size()) - x;
-		x_center += x_size - grid.size();
+	else if((int8_t) -x_center > x) {
+		// Calculate difference, expand grid size, & move grid center.
+		uint8_t diff = -x_center - x;
+		x_size += diff;
+		x_center += diff;
 		
-		ROS_INFO(
-			"[grid_service] Adding [%d] Column(s) to the left of grid",
-			x_size - grid.size()
-		);
+		ROS_WARN("[grid_service] WARNING: Grid too small, adding [%d] Column(s) to the left of grid", diff);
 		
 		// Insert Column vector(s) to the left.
-		std::generate_n(std::front_inserter(grid), x_size - grid.size(), [this]() {
+		std::generate_n(std::front_inserter(grid), diff, [this]() {
 			// Resize and fill Column vector(s)
 			column_t col;
-			col.resize(y_size);
+			col.resize(grid[0].size());
 			std::generate(col.begin(), col.end(), [this]() { return this->createCell(); });
 			return col;
 		});
@@ -128,31 +111,28 @@ void Grid::addColumns(int8_t x) {
 
 void Grid::addRows(int8_t y) {
 	// Insert Row at bottom by appending a Cell at the back of each Column vector.
-	if(	(int8_t) (grid[0].size() - y_center) < y) {
-		// Expand grid size.
-		y_size += y - (grid[0].size() - y_center);
+	if(	(int8_t) (y_size - y_center) < y) {
+		// Calculate difference & expand grid size.
+		uint8_t diff = y - (y_size - y_center);
+		y_size += diff;
 		
-		ROS_INFO(
-			"[grid_service] Adding [%d] Row(s) to bottom of grid",
-			y_size - grid[0].size()
-		);
+		ROS_WARN("[grid_service] WARNING: Grid too small, adding [%d] Row(s) to bottom of grid", diff);
 		
-		std::for_each(grid.begin(), grid.end(), [this](column_t& col) {
-			std::generate_n(std::back_inserter(col), y_size - grid[0].size(), [this]() { return this->createCell(); });
+		std::for_each(grid.begin(), grid.end(), [this, diff](column_t& col) {
+			std::generate_n(std::back_inserter(col), diff, [this]() { return this->createCell(); });
 		});
 	}
 	// Insert Row at top by appending a Cell at the front of each Column vector.
-	else if((int8_t) (y_center - grid[0].size()) > y) {
-		y_size += (y_center - grid[0].size()) - y;
-		y_center += y_size - grid[0].size();
+	else if((int8_t) -y_center > y) {
+		uint8_t diff = -y_center - y;
+		y_size += diff;
+		y_center += diff;
 		
-		ROS_INFO(
-			"[grid_service] Adding [%d] Row(s) to top of grid",
-			y_size - grid[0].size()
-		);
+		ROS_WARN(
+			"[grid_service] WARNING: Grid too small, adding [%d] Row(s) to top of grid", diff);
 		
-		std::for_each(grid.begin(), grid.end(), [this](column_t& col) {
-			std::generate_n(std::front_inserter(col), y_size - grid[0].size(), [this]() { return this->createCell(); });
+		std::for_each(grid.begin(), grid.end(), [this, diff](column_t& col) {
+			std::generate_n(std::front_inserter(col), diff, [this]() { return this->createCell(); });
 		});
 	}
 }
@@ -161,10 +141,10 @@ bool Grid::getStatus(get_status_request_t& req, get_status_response_t& res, uint
 	checkGridBounds(req.x, req.y);
         res.data = (bool) getCell(req.x, req.y)->getCellStatus(stride) & mask;
 	
-	ROS_INFO(
+	ROS_DEBUG(
 		"[grid_service] Status Register of Cell (%d, %d) at address [%p] contains: [%u]",
-		req.x + x_center,
-		req.y + y_center,
+		req.x,
+		req.y,
 		getCell(req.x, req.y)->getCellAddress(),
 		res.data
 	);
@@ -176,10 +156,10 @@ bool Grid::getStatus(get_status_request_t& req, get_status_response_t& res, uint
 	checkGridBounds(req.x, req.y);
 	res.data = (getCell(req.x, req.y)->getCellStatus(stride) & mask) >> offset;
 	
-	ROS_INFO(
+	ROS_DEBUG(
 		"[grid_service] Status Register of Cell (%d, %d) at address [%p] contains: [%u]",
-		req.x + x_center,
-		req.y + y_center,
+		req.x,
+		req.y,
 		getCell(req.x, req.y)->getCellAddress(),
 		res.data
 	);
@@ -193,10 +173,10 @@ bool Grid::setStatus(set_status_request_t& req, set_status_response_t& res, uint
 	if(req.data != status_data)
 		getCell(req.x, req.y)->setCellStatus(stride, status_data ^ (1 << offset));
 	
-	ROS_INFO(
+	ROS_DEBUG(
 		"[grid_service] Status Register of Cell (%d, %d) at address [%p] is now set to: [%u]",
-		req.x + x_center,
-		req.y + y_center,
+		req.x,
+		req.y,
 		getCell(req.x, req.y)->getCellAddress(),
 		status_data ^ (1 << offset)
 	);
@@ -209,25 +189,19 @@ Cell * Grid::getCell(int8_t x, int8_t y) {
 }
 
 void Grid::checkGridBounds(int8_t x, int8_t y) {
-	ROS_INFO(
+	ROS_DEBUG(
 		"[grid_service] Grid bounds currently are (%d, %d) (top-left) and (%d, %d) (bottom-right)",
-		x_center - grid.size(),
-		y_center - grid[0].size(),
-		grid.size() - x_center,
-		grid[0].size() - y_center
+		0 - x_center,
+		0 - y_center,
+		x_size - x_center,
+		y_size - y_center
 	);
-	ROS_INFO(
-		"[grid_service] Attemping to access cell (%d, %d):",
-		x,
-		y
-	);	
 
-	if((grid.size() - x_center < x) || (x_center - grid.size() > x)) {
-		ROS_WARN("[grid_service] ERROR: Grid too small, adding Columns");
-		addColumns(x);
-	}
-	if((grid[0].size() - y_center < y) || (y_center - grid[0].size() > y)) {
-		ROS_WARN("[grid_service] ERROR: Grid too small, adding Rows");
+	ROS_DEBUG("[grid_service] Attemping to access cell (%d, %d)...", x, y);	
+
+	if(((int8_t) (y_size - y_center) < y) || ((int8_t) (0 - y_center) > y))
 		addRows(y);
-	}
+
+	if(((int8_t) (x_size - x_center) < x) || ((int8_t) (0 - x_center) > x))
+		addColumns(x);
 }

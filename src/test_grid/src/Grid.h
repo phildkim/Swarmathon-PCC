@@ -1,6 +1,6 @@
 /** 
  *  @file    Grid.h
- *  @author  Eric Tung (Treayn)
+ *  @author  Eric Tung (Treayn) & Ronuel Diaz (rdiaz93)
  *  @date    2/06/2017
  *  @version 1.0 
  *  
@@ -42,47 +42,47 @@
 #include "MappedCell.h"
 #include "ros/ros.h"
 
-#include <ccny_srvs/GetStatus.h>
-#include <ccny_srvs/SetStatus.h>
+#include "ccny_srvs/GetStatus.h"
+#include "ccny_srvs/SetStatus.h"
 
 class Grid {
 private:
 	// Grid typedefs
-        typedef std::unique_ptr<Cell>           cell_t;
-        typedef std::deque<cell_t>              column_t;
-        typedef std::deque<column_t>            row_t;
+	typedef std::unique_ptr<Cell>           cell_t;
+	typedef std::deque<cell_t>              column_t;
+	typedef std::deque<column_t>            row_t;
 	
 	// Message typedefs
-        typedef ccny_srvs::GetStatus::Request   get_status_request_t;
-        typedef ccny_srvs::GetStatus::Response  get_status_response_t;
-        typedef ccny_srvs::SetStatus::Request   set_status_request_t;
-        typedef ccny_srvs::SetStatus::Response  set_status_response_t;
-	
-        ros::NodeHandle node;
+	typedef ccny_srvs::GetStatus::Request   get_status_request_t;
+	typedef ccny_srvs::GetStatus::Response  get_status_response_t;
+	typedef ccny_srvs::SetStatus::Request   set_status_request_t;
+	typedef ccny_srvs::SetStatus::Response  set_status_response_t;
+
+	ros::NodeHandle node;
 	
 	// Grid variables
 	std::deque<column_t> grid;
 	uint8_t x_size, y_size;
-        uint8_t x_center, y_center;
+    uint8_t x_center, y_center;
 	
 	// Grid mutators
 	
 	/**
-	 *  Grid::createCell()
-         *  ------------------
-         *  Cell() factory function. Call this instead of Cell()
+     *  Grid::createCell()
+	 *  ------------------
+	 *  Cell() factory function. Call this instead of Cell()
 	 *    or Derived class constructors to create new Cells
 	 *    in the Grid.
 	**/
-        std::unique_ptr<Cell> createCell();
+    std::unique_ptr<Cell> createCell();
 	void addColumns(int8_t); 
 	void addRows(int8_t);
 	
 	// Cell accessors & mutators
-        bool getStatus(get_status_request_t&, get_status_response_t&, uint8_t, uint8_t);
-        bool getStatus(get_status_request_t&, get_status_response_t&, uint8_t, uint8_t, uint8_t);
-        bool setStatus(set_status_request_t&, set_status_response_t&, uint8_t, uint8_t, uint8_t);
-	
+	bool getStatus(get_status_request_t&, get_status_response_t&, uint8_t, uint8_t);
+	bool getStatus(get_status_request_t&, get_status_response_t&, uint8_t, uint8_t, uint8_t);
+	bool setStatus(set_status_request_t&, set_status_response_t&, uint8_t, uint8_t, uint8_t);
+
 	// Convenience functions
 	Cell * getCell(int8_t, int8_t);
 	void checkGridBounds(int8_t, int8_t);
@@ -101,8 +101,8 @@ public:
 	 *    (getter and setter) closures which may be invoked
 	 *    by a future Remote Procedure Call.
 	 *  
-         *  These functions accept four arguments:
-         *  
+     *  These functions accept four arguments:
+     *  
 	 *  The first argument specifies a parameter name to
 	 *    query for on the server.
 	 *  
@@ -113,9 +113,9 @@ public:
 	 *    (ROS uses boost::function and boost::bind internally
 	 *    for compatibility with C++03.)
 	**/
-        ros::ServiceServer registerStatusGetter(const std::string&, uint8_t, uint8_t);
-        ros::ServiceServer registerStatusGetter(const std::string&, uint8_t, uint8_t, uint8_t);
-        ros::ServiceServer registerStatusSetter(const std::string&, uint8_t, uint8_t, uint8_t);
+	ros::ServiceServer registerStatusGetter(const std::string&, uint8_t, uint8_t);
+	ros::ServiceServer registerStatusGetter(const std::string&, uint8_t, uint8_t, uint8_t);
+	ros::ServiceServer registerStatusSetter(const std::string&, uint8_t, uint8_t, uint8_t);
 };
 
 #endif

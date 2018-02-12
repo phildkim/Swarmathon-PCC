@@ -1,6 +1,6 @@
 /** 
  *  @file    Cell.h
- *  @author  Eric Tung (Treayn)
+ *  @author  Eric Tung (Treayn) & Ronuel Diaz (rdiaz93)
  *  @date    2/06/2017
  *  @version 1.0 
  *  

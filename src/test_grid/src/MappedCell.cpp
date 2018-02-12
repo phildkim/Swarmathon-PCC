@@ -48,23 +48,6 @@ bool MappedCell::isMapFull() {
         return (MappedCell::mmap_free_addr - MappedCell::mmap_base_addr)/MappedCell::cell_size > MappedCell::mmap_stride;
 }
 
-
-uint8_t * const MappedCell::getBaseAddress() {
-	return MappedCell::mmap_base_addr;
-}
-
-uint8_t * const MappedCell::getFreeAddress() {
-	return MappedCell::mmap_free_addr;
-}
-
-size_t MappedCell::getCellSize() {
-	return MappedCell::cell_size;
-}
-
-size_t MappedCell::getStride() {
-	return MappedCell::mmap_stride;
-}
-
 uint8_t * const MappedCell::getCellAddress() {
 	return this->cell_base_addr;
 }

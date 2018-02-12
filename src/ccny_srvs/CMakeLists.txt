@@ -60,8 +60,6 @@ add_service_files(
   FILES
   GetStatus.srv
   SetStatus.srv
-  GetCoordinates.srv
-  SetCoordinates.srv
 )
 
 ## Generate actions in the 'action' folder
