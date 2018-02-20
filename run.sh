@@ -18,6 +18,7 @@ pkill rosmaster
 echo Killing roscore
 pkill roscore
 roslaunch --wait pickup_serv service.launch &
+
 roscore &
 sleep 2 
 rqt -s rqt_rover_gui
