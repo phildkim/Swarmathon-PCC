@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ccny_srvs)
+project(ccny_msgs)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,8 +8,9 @@ project(ccny_srvs)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs  
-  message_generation  
+  actionlib_msgs
+  geometry_msgs
+  message_generation
   message_runtime
   nav_msgs
   std_msgs
@@ -56,19 +57,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  GetStatus.srv
-  SetStatus.srv
-<<<<<<< HEAD
-  GetCoordinates.srv
-  SetCoordinates.srv
-  GetPickup.srv
-  SetPickup.srv
-  RobotType.srv
-=======
->>>>>>> c90e87883c4c27e7213990833d43883f66784768
-)
+# add_service_files(
+#   FILES
+#   Service1.srv
+#   Service2.srv
+# )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -78,11 +71,10 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  geometry_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   actionlib_msgs#   geometry_msgs#   nav_msgs#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -115,8 +107,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES ccny_srvs
-#  CATKIN_DEPENDS geometry_msgs message_generation message_runtime nav_msgs std_msgs
+#  LIBRARIES ccny_msgs
+#  CATKIN_DEPENDS actionlib_msgs geometry_msgs message_generation message_runtime nav_msgs std_msgs
 #  DEPENDS system_lib
 )
 
@@ -133,7 +125,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/ccny_srvs.cpp
+#   src/${PROJECT_NAME}/ccny_msgs.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -144,7 +136,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/ccny_srvs_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/ccny_msgs_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -201,11 +193,10 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_ccny_srvs.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_ccny_msgs.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-
