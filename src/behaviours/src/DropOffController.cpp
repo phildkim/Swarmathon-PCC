@@ -3,9 +3,6 @@
 #include <std_msgs/String.h>
 #include <ros/console.h>
 #include "ccny_srvs/SetPickup.h"
-static int robottype = 1;
-
-
 
 DropOffController::DropOffController() {
 
@@ -35,11 +32,98 @@ DropOffController::~DropOffController() {
 }
 
 Result DropOffController::DoWork(){
+return Work(*this);
+}
+Result DropOffController::SearchWork(){
     ros::NodeHandle gm;
     ros::ServiceClient putdown = gm.serviceClient<ccny_srvs::SetPickup>("pickupsetter");
-    switch(robottype){
-case 1:
+    int count = countLeft + countRight;
+
+    if(timerTimeElapsed > -1) {
+
+      long int elapsed = current_time - returnTimer;
+      timerTimeElapsed = elapsed/1e3; // Convert from milliseconds to seconds
+    }
+
+    //if we are in the routine for exiting the circle once we have dropped a block off and reseting all our flags
+    //to resart our search.
+    if(reachedCollectionPoint)
     {
+      cout << "2" << endl;
+      if (timerTimeElapsed >= 5)
+      {
+        //ROS_WARN("%s","Timer is greater than 5 seconds");
+        if (finalInterrupt)
+        {
+          result.type = behavior;
+          result.b = nextProcess;
+          result.reset = true;
+          dropset=true;
+          ccny_srvs::SetPickup msg;
+          msg.request.point.x = dropOffLocation.x;
+          msg.request.point.y = dropOffLocation.y;
+          ROS_WARN(" drop x:%f y:%f",dropOffLocation.x,dropOffLocation.y);
+          putdown.call(msg);
+          return result;
+        }
+        else
+        {
+          finalInterrupt = true;
+          seenEnoughCenterTags = true;
+          first_center=false;
+          result.type=behavior;
+          result.b=wait;
+          cout << "1" << endl;
+        }
+      }
+      else
+      {
+        //ROS_WARN("%s","we have reached our drop off but time is greater than 0.1 but less than 5");
+        isPrecisionDriving = true;
+        result.type = precisionDriving;
+        result.b=wait;
+        result.fingerAngle = M_PI_2; //open fingers
+        result.wristAngle = 0; //raise wrist
+        result.wpts.waypoints.clear();
+        result.pd.cmdVel = -0.3;
+        result.pd.cmdAngularError = 0.0;
+      }
+
+      return result;
+    }
+    double distanceToLocation = hypot(this->dropOffLocation.x - this->currentLocation.x, this->dropOffLocation.y - this->currentLocation.y);
+    if(distanceToLocation> 0.2&&!dropset){
+        //ROS_WARN("%s","Distance is greater than 0.2");
+        result.type = waypoint;
+        result.wpts.waypoints.clear();
+        result.wpts.waypoints.push_back(this->dropOffLocation);
+        startWaypoint = false;
+        isPrecisionDriving = false;
+
+        timerTimeElapsed = 0;
+
+        return result;
+
+      }else if(distanceToLocation <0.2){
+        ROS_ERROR("%s","Robot is close enough");
+        result.type=behavior;
+        result.b=nextProcess;
+        result.reset= false;
+        reachedCollectionPoint = true;
+        returnTimer = current_time;
+        return result;
+
+    }else{
+        result.type=behavior;
+        result.b=prevProcess;
+        dropset=false;
+
+    }
+    return result;
+
+}
+Result DropOffController::PickupWork(){
+
   cout << "8" << endl;
   //ROS_WARN("%s","HELLOWORLD  ");
   int count = countLeft + countRight;
@@ -268,99 +352,6 @@ case 1:
   }
 
   return result;
-    }
-   break;
-  //THIS IS FOR THE SEARCHING ROBOTS
-case 0:
-    {
-        //ROS_WARN("%s","This is the starting of the second case");
-        int count = countLeft + countRight;
-
-        if(timerTimeElapsed > -1) {
-
-          long int elapsed = current_time - returnTimer;
-          timerTimeElapsed = elapsed/1e3; // Convert from milliseconds to seconds
-        }
-
-        //if we are in the routine for exiting the circle once we have dropped a block off and reseting all our flags
-        //to resart our search.
-        if(reachedCollectionPoint)
-        {
-          cout << "2" << endl;
-          if (timerTimeElapsed >= 5)
-          {
-            //ROS_WARN("%s","Timer is greater than 5 seconds");
-            if (finalInterrupt)
-            {
-              result.type = behavior;
-              result.b = nextProcess;
-              result.reset = true;
-              dropset=true;
-              ccny_srvs::SetPickup msg;
-              msg.request.point.x = dropOffLocation.x;
-              msg.request.point.y = dropOffLocation.y;
-              ROS_WARN(" drop x:%f y:%f",dropOffLocation.x,dropOffLocation.y);
-              putdown.call(msg);
-              return result;
-            }
-            else
-            {
-              finalInterrupt = true;
-              seenEnoughCenterTags = true;
-              first_center=false;
-              result.type=behavior;
-              result.b=wait;
-              cout << "1" << endl;
-            }
-          }
-          else
-          {
-            //ROS_WARN("%s","we have reached our drop off but time is greater than 0.1 but less than 5");
-            isPrecisionDriving = true;
-            result.type = precisionDriving;
-            result.b=wait;
-            result.fingerAngle = M_PI_2; //open fingers
-            result.wristAngle = 0; //raise wrist
-            result.wpts.waypoints.clear();
-            result.pd.cmdVel = -0.3;
-            result.pd.cmdAngularError = 0.0;
-          }
-
-          return result;
-        }
-        double distanceToLocation = hypot(this->dropOffLocation.x - this->currentLocation.x, this->dropOffLocation.y - this->currentLocation.y);
-        if(distanceToLocation> 0.2&&!dropset){
-            //ROS_WARN("%s","Distance is greater than 0.2");
-            result.type = waypoint;
-            result.wpts.waypoints.clear();
-            result.wpts.waypoints.push_back(this->dropOffLocation);
-            startWaypoint = false;
-            isPrecisionDriving = false;
-
-            timerTimeElapsed = 0;
-
-            return result;
-
-          }else if(distanceToLocation <0.2){
-            ROS_ERROR("%s","Robot is close enough");
-            result.type=behavior;
-            result.b=nextProcess;
-            result.reset= false;
-            reachedCollectionPoint = true;
-            returnTimer = current_time;
-            return result;
-
-        }else{
-            result.type=behavior;
-            result.b=prevProcess;
-            dropset=false;
-
-        }
-        return result;
-    }
-        break;
-    }
-
 }
 
 void DropOffController::Reset() {
@@ -488,8 +479,7 @@ void DropOffController::SetCurrentTimeInMilliSecs( long int time )
   current_time = time;
 }
 void DropOffController::changeType(){
-    robottype = 0;
-    //ROS_WARN("%s","WARNging");
+    Work=&DropOffController::SearchWork;
 }
 string DropOffController::getdata(){
     string msg="";

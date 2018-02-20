@@ -5,6 +5,7 @@
 #include "Controller.h"
 #include "Tag.h"
 #include <math.h>
+#include <functional>
 
 class DropOffController : virtual Controller
 {
@@ -16,6 +17,7 @@ public:
 
   void Reset() override;
   Result DoWork() override;
+  std::function <Result(DropOffController&)> Work= &DropOffController::PickupWork;
   bool ShouldInterrupt() override;
   bool HasWork() override;
   string toString(){return "DropController";}
@@ -27,6 +29,8 @@ public:
   void SetBlockBlockingUltrasound(bool blockBlock);
   void SetTargetData(vector<Tag> tags);
   bool HasTarget() {return targetHeld;}
+  Result SearchWork();
+  Result PickupWork();
   void SetType();
   void changeType();
   float GetSpinner() {return spinner;}

@@ -4,6 +4,7 @@
 #include <array>
 #include <random_numbers/random_numbers.h>
 #include "Controller.h"
+#include <functional>
 
 /**
  * This class implements the search control algorithm for the rovers. The code
@@ -19,6 +20,9 @@ public:
 
   // performs search pattern
   Result DoWork() override;
+  std::function<Result(SearchController&)> Work= &SearchController::PickupWork;
+  Result PickupWork();
+  Result SearchWork();
   bool ShouldInterrupt() override;
   bool HasWork() override;
   string toString(){return "SearchController";}
@@ -27,7 +31,7 @@ public:
   void SetCurrentLocation(Point currentLocation);
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
-void setType ();
+  void setType ();
 protected:
 
   void ProcessData();
