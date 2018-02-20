@@ -60,14 +60,11 @@ add_service_files(
   FILES
   GetStatus.srv
   SetStatus.srv
-<<<<<<< HEAD
   GetCoordinates.srv
   SetCoordinates.srv
   GetPickup.srv
   SetPickup.srv
   RobotType.srv
-=======
->>>>>>> c90e87883c4c27e7213990833d43883f66784768
 )
 
 ## Generate actions in the 'action' folder
