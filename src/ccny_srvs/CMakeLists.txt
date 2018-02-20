@@ -62,6 +62,9 @@ add_service_files(
   SetStatus.srv
   GetCoordinates.srv
   SetCoordinates.srv
+  GetPickup.srv
+  SetPickup.srv
+  RobotType.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -75,6 +78,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
+  geometry_msgs
 )
 
 ################################################
