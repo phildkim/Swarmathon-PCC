@@ -83,21 +83,6 @@ Result LogicController::DoWork() {
     CreateLog tmp(&msg,&result);
     msg.data+=dropOffController.getdata();
     res.publish(msg);
-//    if(control_queue.top().controller->toString().compare("DriveController")==0){
-//        ROS_FATAL("%s","drivecontroller");
-//    }else if(control_queue.top().controller->toString().compare("DropController")==0){
-//        ROS_FATAL("%s","dropcontroller");
-//    }else if(control_queue.top().controller->toString().compare("ManualController")==0){
-//        ROS_FATAL("%s","manualcontroller");
-//    }else if(control_queue.top().controller->toString().compare("ObstacleController")==0){
-//        ROS_FATAL("%s","obstaclecontroller");
-//    }else if(control_queue.top().controller->toString().compare("PickupController")==0){
-//        ROS_FATAL("%s","pickupcontroller");
-//    }else if(control_queue.top().controller->toString().compare("RangeController")==0){
-//        ROS_FATAL("%s","Rangecontroller");
-//    }else if(control_queue.top().controller->toString().compare("SearchController")==0){
-//        ROS_FATAL("%s","searchcontroller");
-//    }
     //anaylyze the result that was returned and do state changes accordingly
     //behavior types are used to indicate behavior changes of some form
     if(result.type == behavior) {

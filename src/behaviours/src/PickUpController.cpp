@@ -90,7 +90,9 @@ void PickUpController::SetTagData(vector<Tag> tags)
 
     //cout << "blockDistance  TAGDATA:  " << blockDistance << endl;
 
-    blockYawError = atan((tags[target].getPositionX() + cameraOffsetCorrection)/blockDistance)*1.05; //angle to block from bottom center of chassis on the horizontal.
+    blockYawError = atan((tags[target].getPositionX() + cameraOffsetCorrection)/blockDistance)*0.90; //angle to block from bottom center of chassis on the horizontal.
+
+    ROS_WARN("BlockYawError: %f",blockYawError);
 
     cout << "blockYawError TAGDATA:  " << blockYawError << endl;
 

@@ -75,6 +75,15 @@ Result DropOffController::SearchWork(){
           result.b=wait;
           cout << "1" << endl;
         }
+      }else if(timerTimeElapsed>=2){
+          isPrecisionDriving = true;
+          result.type = precisionDriving;
+          result.b=wait;
+          result.fingerAngle = M_PI_2; //open fingers
+          result.wristAngle = 0; //raise wrist
+          result.wpts.waypoints.clear();
+          result.pd.cmdVel = 0.0;
+          result.pd.cmdAngularError = -2.0;
       }
       else
       {
@@ -85,7 +94,7 @@ Result DropOffController::SearchWork(){
         result.fingerAngle = M_PI_2; //open fingers
         result.wristAngle = 0; //raise wrist
         result.wpts.waypoints.clear();
-        result.pd.cmdVel = -0.3;
+        result.pd.cmdVel = -1.5;
         result.pd.cmdAngularError = 0.0;
       }
 
@@ -174,7 +183,6 @@ Result DropOffController::PickupWork(){
   }
 
   double distanceToCenter = hypot(this->centerLocation.x - this->currentLocation.x, this->centerLocation.y - this->currentLocation.y);
-  //double distanceToLocation = hypot(this->currentLocation.x/2,this->currentLocation.y/2);// This must be moved to a controlled area where specific functions are set for different robot types.
   //check to see if we are driving to the center location or if we need to drive in a circle and look.
   if (distanceToCenter > collectionPointVisualDistance && !circularCenterSearching && (count == 0)) {
     //ROS_WARN("%s","DIstance is greater than collection point visual distance");
