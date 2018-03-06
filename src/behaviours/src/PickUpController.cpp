@@ -90,9 +90,9 @@ void PickUpController::SetTagData(vector<Tag> tags)
 
     //cout << "blockDistance  TAGDATA:  " << blockDistance << endl;
 
-    blockYawError = atan((tags[target].getPositionX() + cameraOffsetCorrection)/blockDistance)*0.90; //angle to block from bottom center of chassis on the horizontal.
+    blockYawError = atan((tags[target].getPositionX() + cameraOffsetCorrection)/blockDistance)*0.85; //angle to block from bottom center of chassis on the horizontal.
 
-    ROS_WARN("BlockYawError: %f",blockYawError);
+
 
     cout << "blockYawError TAGDATA:  " << blockYawError << endl;
 
@@ -231,7 +231,7 @@ Result PickUpController::DoWork()
     // If we don't see any blocks or cubes turn towards the location of the last cube we saw.
     // I.E., try to re-aquire the last cube we saw.
 
-    float grasp_time_begin = 1.5;
+    float grasp_time_begin = 1.3;
     float raise_time_begin = 2.0;
     float lower_gripper_time_begin = 4.0;
     float target_reaquire_begin= 4.2;
@@ -284,7 +284,7 @@ Result PickUpController::DoWork()
       // this is a 3-line P controller, where Kp = 0.20
       float vel = blockDistance * 0.20;
       if (vel < 0.1) vel = 0.1;
-      if (vel > 0.2) vel = 0.2;
+      if (vel > 0.3) vel = 0.3;
 
       result.pd.cmdVel = vel;
       result.pd.cmdAngularError = -blockYawError;
@@ -295,14 +295,14 @@ Result PickUpController::DoWork()
     else if (!lockTarget) //if a target hasn't been locked lock it and enter a counting state while slowly driving forward.
     {
       lockTarget = true;
-      result.pd.cmdVel = 0.18;
+      result.pd.cmdVel = 0.30;
       result.pd.cmdAngularError= 0.0;
       timeOut = true;
       ignoreCenterSonar = true;
     }
     else if (Td > raise_time_begin) //raise the wrist
     {
-      result.pd.cmdVel = -0.15;
+      result.pd.cmdVel = -0.30;
       result.pd.cmdAngularError= 0.0;
       result.wristAngle = 0;
     }

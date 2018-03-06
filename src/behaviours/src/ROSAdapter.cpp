@@ -287,14 +287,14 @@ void behaviourStateMachine(const ros::TimerEvent&)
       ROS_WARN("ID: %d and NAME: %s",logicController.id,publishedName);
       //TODO: this just sets center to 0 over and over and needs to change
       Point centerOdom;
-      centerOdom.x = 1.3 * cos(currentLocation.theta);
-      centerOdom.y = 1.3 * sin(currentLocation.theta);
+      centerOdom.x = 0;//1.3 * cos(currentLocation.theta);
+      centerOdom.y = 0;//1.3 * sin(currentLocation.theta);
       centerOdom.theta = centerLocation.theta;
       logicController.SetCenterLocationOdom(centerOdom);
       
       Point centerMap;
-      centerMap.x = currentLocationMap.x + (1.3 * cos(currentLocationMap.theta));
-      centerMap.y = currentLocationMap.y + (1.3 * sin(currentLocationMap.theta));
+      centerMap.x =0;// currentLocationMap.x + (1.3 * cos(currentLocationMap.theta));
+      centerMap.y =0;// currentLocationMap.y + (1.3 * sin(currentLocationMap.theta));
       centerMap.theta = centerLocationMap.theta;
       logicController.SetCenterLocationMap(centerMap);
       
