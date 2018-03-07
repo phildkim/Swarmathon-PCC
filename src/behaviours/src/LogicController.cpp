@@ -79,10 +79,6 @@ Result LogicController::DoWork() {
 
     //take the top member of the priority queue and run their do work function.
     result = control_queue.top().controller->DoWork();
-    std_msgs::String msg;
-    CreateLog tmp(&msg,&result);
-    msg.data+=dropOffController.getdata();
-    res.publish(msg);
     //anaylyze the result that was returned and do state changes accordingly
     //behavior types are used to indicate behavior changes of some form
     if(result.type == behavior) {
@@ -211,7 +207,7 @@ void LogicController::ProcessData()
   //this controller priority is used when searching
   if (processState == PROCCESS_STATE_SEARCHING) 
   {
-//      ROS_ERROR("%s","pickup,obstacle,range,search");
+      ROS_ERROR("%s","pickup,obstacle,range,search");
     prioritizedControllers = {
       PrioritizedController{0, (Controller*)(&searchController)},
       PrioritizedController{10, (Controller*)(&obstacleController)},
@@ -225,7 +221,7 @@ void LogicController::ProcessData()
   //this priority is used when returning a target to the center collection zone
   else if (processState  == PROCCESS_STATE_TARGET_PICKEDUP) 
   {
-//      ROS_ERROR("%s","obstacle,range,dropoff");
+      ROS_ERROR("%s","obstacle,range,dropoff");
     prioritizedControllers = {
     PrioritizedController{-1, (Controller*)(&searchController)},
     PrioritizedController{15, (Controller*)(&obstacleController)},
@@ -239,7 +235,7 @@ void LogicController::ProcessData()
   //this priority is used when returning a target to the center collection zone
   else if (processState  == PROCCESS_STATE_DROP_OFF)
   {
-//      ROS_ERROR("%s","range,dropoff");
+      ROS_ERROR("%s","range,dropoff");
     prioritizedControllers = {
       PrioritizedController{-1, (Controller*)(&searchController)},
       PrioritizedController{-1, (Controller*)(&obstacleController)},

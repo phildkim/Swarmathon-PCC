@@ -63,12 +63,12 @@ Result SearchController::PickupWork(){
       if(!msg.response.empty){
           searchLocation.x=msg.response.point.x;
           searchLocation.y=msg.response.point.y;
-          ROS_WARN("pickup x:%f y:%f",searchLocation.x,searchLocation.y);
+          //ROS_WARN("pickup x:%f y:%f",searchLocation.x,searchLocation.y);
       }else{
           if(currentLocation.x!=0){
           curr_angle = atan(currentLocation.y/currentLocation.x);
           }
-          radius = +rng->uniformReal(0.5,2);
+          radius = +rng->uniformReal(1,3);
           angle = (curr_angle+rng->uniformReal(-M_PI/4,M_PI/4));
        searchLocation.x = radius*cos(angle);
        searchLocation.y = radius*sin(angle);
@@ -81,12 +81,12 @@ Result SearchController::PickupWork(){
         if(!msg.response.empty){
             searchLocation.x=msg.response.point.x;
             searchLocation.y=msg.response.point.y;
-            ROS_WARN("pickup x:%f y:%f",searchLocation.x,searchLocation.y);
+            //ROS_WARN("pickup x:%f y:%f",searchLocation.x,searchLocation.y);
         }else{
             if(currentLocation.x!=0){
             curr_angle = atan(currentLocation.y/currentLocation.x);
             }
-            radius = +rng->uniformReal(0.5,2);
+            radius = +rng->uniformReal(1,3);
             angle = (curr_angle+rng->uniformReal(-M_PI/4,M_PI/4));
          searchLocation.x = radius*cos(angle);
          searchLocation.y = radius*sin(angle);

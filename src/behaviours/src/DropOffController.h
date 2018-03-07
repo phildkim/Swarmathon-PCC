@@ -86,7 +86,7 @@ private:
   //Center and current locations as of the last call to setLocationData
   Point centerLocation;
   Point dropOffLocation;
-
+  Point center;
 
   //Time since modeTimer was started, in seconds
   float timerTimeElapsed;
@@ -119,6 +119,7 @@ private:
   //Flag to indicate that we're starting to follow waypoints
   bool startWaypoint;
   bool dropset;
+  bool returnpoint;
   Result result;
 
   long int current_time;
