@@ -37,7 +37,7 @@ public:
   void UpdateData();
   bool ShouldInterrupt() override;
   bool HasWork() override;
-
+  string toString(){return "LogicController";}
   void SetAprilTags(vector<Tag> tags);
   void SetSonarData(float left, float center, float right);
   void SetPositionData(Point currentLocation);
@@ -85,7 +85,8 @@ public:
   // allowed range.
   void setVirtualFenceOn( RangeShape* range );
   void setVirtualFenceOff( );
-
+  void setRobotType();
+  int id;
 protected:
   void ProcessData();
 

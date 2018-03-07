@@ -5,32 +5,39 @@
 #include "Controller.h"
 #include "Tag.h"
 #include <math.h>
+#include <functional>
 
 class DropOffController : virtual Controller
 {
 public:
+
+
   DropOffController();
   ~DropOffController();
 
   void Reset() override;
   Result DoWork() override;
+  std::function <Result(DropOffController&)> Work= &DropOffController::PickupWork;
   bool ShouldInterrupt() override;
   bool HasWork() override;
-
+  string toString(){return "DropController";}
   bool IsChangingMode();
   void SetCenterLocation(Point center);
   void SetCurrentLocation(Point current);
+  void SetDropoffLocation(Point dropoff);
   void SetTargetPickedUp();
   void SetBlockBlockingUltrasound(bool blockBlock);
   void SetTargetData(vector<Tag> tags);
   bool HasTarget() {return targetHeld;}
-
+  Result SearchWork();
+  Result PickupWork();
+  void SetType();
+  void changeType();
   float GetSpinner() {return spinner;}
-
+  string getdata();
   void UpdateData(vector<Tag> tags);
-
   void SetCurrentTimeInMilliSecs( long int time );
-
+   Point currentLocation;
 private:
 
   void ProcessData();
@@ -78,7 +85,8 @@ private:
 
   //Center and current locations as of the last call to setLocationData
   Point centerLocation;
-  Point currentLocation;
+  Point dropOffLocation;
+
 
   //Time since modeTimer was started, in seconds
   float timerTimeElapsed;
@@ -110,7 +118,7 @@ private:
 
   //Flag to indicate that we're starting to follow waypoints
   bool startWaypoint;
-
+  bool dropset;
   Result result;
 
   long int current_time;

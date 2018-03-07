@@ -1,7 +1,7 @@
 #include "PickUpController.h"
 #include <limits> // For numeric limits
 #include <cmath> // For hypot
-
+#include <ros/console.h>
 PickUpController::PickUpController()
 {
   lockTarget = false;
@@ -90,7 +90,9 @@ void PickUpController::SetTagData(vector<Tag> tags)
 
     //cout << "blockDistance  TAGDATA:  " << blockDistance << endl;
 
-    blockYawError = atan((tags[target].getPositionX() + cameraOffsetCorrection)/blockDistance)*1.05; //angle to block from bottom center of chassis on the horizontal.
+    blockYawError = atan((tags[target].getPositionX() + cameraOffsetCorrection)/blockDistance)*0.90; //angle to block from bottom center of chassis on the horizontal.
+
+    ROS_WARN("BlockYawError: %f",blockYawError);
 
     cout << "blockYawError TAGDATA:  " << blockYawError << endl;
 
@@ -108,6 +110,7 @@ bool PickUpController::SetSonarData(float rangeCenter)
     result.b = nextProcess;
     result.reset = true;
     targetHeld = true;
+
     return true;
   }
 
@@ -140,6 +143,7 @@ void PickUpController::ProcessData()
     result.b = nextProcess;
     result.reset = true;
     targetHeld = true;
+
   }
   //Lower wrist and open fingures if no locked targt
   else if (!lockTarget)

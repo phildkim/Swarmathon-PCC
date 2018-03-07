@@ -1,0 +1,486 @@
+
+/achilles_BEHAVIOUR type: behavior, b: next,
+waypoints: empty
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:1.250000
+PID Mode: SLOW_PID
+targetHeld: true
+reachedCollectionPoint: false
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: waypoint, b: wait,
+waypoints: 1.157485 -0.395283 0.000000
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:-1.000000
+WristAngle:0.700000
+PID Mode: FAST_PID
+targetHeld: true
+reachedCollectionPoint: false
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: false
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: waypoint, b: next,
+waypoints: 1.157485 -0.395283 0.000000
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:-1.000000
+WristAngle:0.700000
+PID Mode: FAST_PID
+targetHeld: true
+reachedCollectionPoint: true
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: waypoint, b: next,
+waypoints: 1.157485 -0.395283 0.000000
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:-1.000000
+WristAngle:0.700000
+PID Mode: FAST_PID
+targetHeld: true
+reachedCollectionPoint: true
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: precision, b: next,
+waypoints: empty
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:-0.300000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:0.000000
+PID Mode: FAST_PID
+targetHeld: true
+reachedCollectionPoint: true
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: true
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: precision, b: next,
+waypoints: empty
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:-0.300000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:0.000000
+PID Mode: FAST_PID
+targetHeld: true
+reachedCollectionPoint: true
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: true
+startwaypoint: true
+interrupt: true
+precision interrupt: true
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: behavior, b: next,
+waypoints: empty
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:-0.300000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:0.000000
+PID Mode: FAST_PID
+targetHeld: true
+reachedCollectionPoint: true
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: true
+startwaypoint: true
+interrupt: true
+precision interrupt: true
+finalinterrupt: true
+first center: true
+
+/achilles_BEHAVIOUR type: waypoint, b: wait,
+waypoints: 1.157485 -0.395283 0.000000
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:-1.000000
+WristAngle:0.700000
+PID Mode: FAST_PID
+targetHeld: false
+reachedCollectionPoint: false
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: false
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: waypoint, b: next,
+waypoints: 1.157485 -0.395283 0.000000
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:-1.000000
+WristAngle:0.700000
+PID Mode: FAST_PID
+targetHeld: false
+reachedCollectionPoint: true
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: waypoint, b: next,
+waypoints: 1.157485 -0.395283 0.000000
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:-1.000000
+WristAngle:0.700000
+PID Mode: FAST_PID
+targetHeld: false
+reachedCollectionPoint: true
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: precision, b: next,
+waypoints: empty
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:-0.300000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:0.000000
+PID Mode: FAST_PID
+targetHeld: false
+reachedCollectionPoint: true
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: true
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: precision, b: next,
+waypoints: empty
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:-0.300000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:0.000000
+PID Mode: FAST_PID
+targetHeld: false
+reachedCollectionPoint: true
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: true
+startwaypoint: true
+interrupt: true
+precision interrupt: true
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: behavior, b: next,
+waypoints: empty
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:-0.300000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:0.000000
+PID Mode: FAST_PID
+targetHeld: false
+reachedCollectionPoint: true
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: true
+startwaypoint: true
+interrupt: true
+precision interrupt: true
+finalinterrupt: true
+first center: true
+
+/achilles_BEHAVIOUR type: precision, b: next,
+waypoints: empty
+Precision:
+Angular:0.000000 AngularError:-0.232220 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:1.250000
+PID Mode: SLOW_PID
+targetHeld: false
+reachedCollectionPoint: false
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+changing all rovers to manual control...
+Setting up joystick publisher /achilles/joystick
+Redirecting existing Joystick Gripper Interface to achilles
+achilles changed to joystick control
+Started the joystick node.
+Setting up joystick publisher /achilles/joystick
+Redirecting existing Joystick Gripper Interface to achilles
+achilles changed to joystick control
+The joystick node is already running.
+/achilles_BEHAVIOUR type: waypoint, b: wait,
+waypoints: -0.526099 -2.980934 0.000000
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:0.785398
+PID Mode: FAST_PID
+targetHeld: false
+reachedCollectionPoint: false
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+________________________________________________________________________________________________
+
+
+
+/gazebo achilles: Gripper attached to dynamic target at5 after being in contact for 0.002000
+/gazebo achilles: Attempting detach...
+/gazebo achilles: Gripper detached from dynamic model at5 after no contact for 0.102000. Target end pose: -1.22592 -0.878486 0.039326 1.38198 0.003698 -1.26597
+/gazebo achilles: Gripper attached to dynamic target at5 after being in contact for 0.002000
+/gazebo achilles: Attempting detach...
+/gazebo achilles: Gripper detached from dynamic model at5 after no contact for 0.102000. Target end pose: -1.21331 -0.874214 0.046632 1.33121 0.001397 -1.26401
+/gazebo achilles: Gripper attached to dynamic target at5 after being in contact for 0.002000
+/gazebo achilles: Attempting detach...
+/gazebo achilles: Gripper detached from dynamic model at5 after no contact for 0.102000. Target end pose: -1.20013 -0.869633 0.052201 1.29115 0.000212 -1.26182
+/gazebo achilles: Gripper attached to dynamic target at5 after being in contact for 0.002000
+/gazebo achilles: Attempting detach...
+/gazebo achilles: Gripper detached from dynamic model at5 after no contact for 0.102000. Target end pose: -1.18616 -0.864806 0.05661 1.25975 -0.000641 -1.25986
+/gazebo achilles: Gripper attached to dynamic target at5 after being in contact for 0.002000
+/gazebo achilles: Attempting detach...
+/gazebo achilles: Gripper detached from dynamic model at5 after no contact for 0.102000. Target end pose: -1.17144 -0.859799 0.060202 1.23443 -0.00108 -1.25849
+/gazebo achilles: Gripper attached to dynamic target at5 after being in contact for 0.002000
+/gazebo achilles: Attempting detach...
+/gazebo achilles: Gripper detached from dynamic model at5 after no contact for 0.102000. Target end pose: -1.15609 -0.854583 0.06303 1.21473 -0.001183 -1.25766
+/gazebo achilles: Gripper attached to dynamic target at5 after being in contact for 0.002000
+/gazebo achilles: GripperPlugin: handleGrasping() trying to detach due to finger angle failsafe. Finger angle is 90.000003, max gripping angle is 79.999805
+/gazebo achilles: Gripper detached from dynamic model at5 after no contact for 0.000000. Target end pose: -1.14688 -0.852069 0.063643 1.21747 0.000303 -1.26522
+/achilles_BEHAVIOUR type: waypoint, b: wait,
+waypoints: 0.130287 0.413919 0.000000
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:0.785398
+PID Mode: FAST_PID
+targetHeld: false
+reachedCollectionPoint: false
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: precision, b: wait,
+waypoints: empty
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.180000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:1.250000
+PID Mode: SLOW_PID
+targetHeld: false
+reachedCollectionPoint: false
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/gazebo achilles: Gripper attached to dynamic target at5 after being in contact for 0.002000
+/achilles_BEHAVIOUR type: behavior, b: next,
+waypoints: empty
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:-0.150000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:0.000000
+WristAngle:0.000000
+PID Mode: SLOW_PID
+targetHeld: false
+reachedCollectionPoint: false
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: waypoint, b: wait,
+waypoints: 0.925494 0.556008 0.000000
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:-1.000000
+WristAngle:0.700000
+PID Mode: FAST_PID
+targetHeld: true
+reachedCollectionPoint: false
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: false
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+/achilles_BEHAVIOUR type: behavior, b: next,
+waypoints: 1.450388 -0.113439 0.236200
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:-1.000000
+WristAngle:0.700000
+PID Mode: FAST_PID
+targetHeld: true
+reachedCollectionPoint: false
+circularsearch: true
+centerapproach: false
+seenenough: false
+isprecisiondriving: true
+startwaypoint: true
+interrupt: true
+precision interrupt: true
+finalinterrupt: false
+first center: false
+
+/achilles_BEHAVIOUR type: precision, b: next,
+waypoints: 1.450388 -0.113439 0.236200
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.150000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:-1.000000
+WristAngle:0.700000
+PID Mode: FAST_PID
+targetHeld: true
+reachedCollectionPoint: false
+circularsearch: true
+centerapproach: true
+seenenough: true
+isprecisiondriving: true
+startwaypoint: true
+interrupt: true
+precision interrupt: true
+finalinterrupt: false
+first center: false
+
+/gazebo achilles: GripperPlugin: handleGrasping() trying to detach due to finger angle failsafe. Finger angle is 90.000003, max gripping angle is 79.999805
+/gazebo achilles: Gripper detached from dynamic model at5 after no contact for 0.000000. Target end pose: -0.297211 -0.237912 0.025992 1.60869 0.002372 2.52093
+/achilles_BEHAVIOUR type: behavior, b: next,
+waypoints: 1.292160 0.075021 0.279254
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:-0.300000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:0.000000
+PID Mode: FAST_PID
+targetHeld: true
+reachedCollectionPoint: true
+circularsearch: true
+centerapproach: false
+seenenough: true
+isprecisiondriving: true
+startwaypoint: true
+interrupt: true
+precision interrupt: true
+finalinterrupt: true
+first center: false
+
+/achilles_BEHAVIOUR type: waypoint, b: wait,
+waypoints: 0.470775 -0.807933 0.000000
+Precision:
+Angular:0.000000 AngularError:0.000000 Velocity:0.000000 left:0.000000 Right:0.000000 SetPointVel:0.000000 SetPointYaw:0.000000
+FingerAngle:1.570796
+WristAngle:0.785398
+PID Mode: FAST_PID
+targetHeld: false
+reachedCollectionPoint: false
+circularsearch: false
+centerapproach: false
+seenenough: false
+isprecisiondriving: false
+startwaypoint: true
+interrupt: true
+precision interrupt: false
+finalinterrupt: false
+first center: true
+
+changing all rovers to manual control...
+Setting up joystick publisher /achilles/joystick
+Redirecting existing Joystick Gripper Interface to achilles
+achilles changed to joystick control
+Started the joystick node.
+Setting up joystick publisher /achilles/joystick
+Redirecting existing Joystick Gripper Interface to achilles
+achilles changed to joystick control
+The joystick node is already running.
+
+

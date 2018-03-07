@@ -27,7 +27,7 @@ public:
    
    // True if there are waypoints in the list. False otherwise.
    bool HasWork() override;
-   
+   string toString(){return "ManualController";}
    // Interrupts only if the number of waypoints has changed and is
    // non-zero.
    bool ShouldInterrupt() override;

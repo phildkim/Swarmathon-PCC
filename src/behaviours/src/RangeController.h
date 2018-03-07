@@ -120,7 +120,7 @@ class RangeController : virtual Controller {
   Result DoWork() override;
   bool ShouldInterrupt() override;
   bool HasWork() override;
-
+  string toString(){return "RangeController";}
   // Setters
   void setRangeShape( RangeShape* range );
   void setBacktrackDistance( float backtrack_distance );

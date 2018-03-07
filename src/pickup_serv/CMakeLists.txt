@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ccny_srvs)
+project(pickup_serv)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,11 +8,19 @@ project(ccny_srvs)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs  
-  message_generation  
+  geometry_msgs
+  ccny_srvs
+  message_generation
   message_runtime
-  nav_msgs
+  roscpp
+  rospy
+  rostopic
   std_msgs
+  std_srvs
+)
+include_directories(
+# include
+  ${catkin_INCLUDE_DIRS}
 )
 
 ## System dependencies are found with CMake's conventions
@@ -56,16 +64,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  GetStatus.srv
-  SetStatus.srv
-  GetCoordinates.srv
-  SetCoordinates.srv
-  GetPickup.srv
-  SetPickup.srv
-  RobotType.srv
-)
+# add_service_files(
+#   FILES
+#   Service1.srv
+#   Service2.srv
+# )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -75,11 +78,10 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  geometry_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -112,9 +114,10 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES ccny_srvs
-#  CATKIN_DEPENDS geometry_msgs message_generation message_runtime nav_msgs std_msgs
+#  LIBRARIES pickup_serv
+#  CATKIN_DEPENDS roscpp rospy rostopic std_msgs std_srvs
 #  DEPENDS system_lib
+   CATKIN_DEPENDS roscpp ccny_srvs rospy std_msgs geometry_msgs
 )
 
 ###########
@@ -123,14 +126,10 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/ccny_srvs.cpp
+#   src/${PROJECT_NAME}/pickup_serv.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -141,8 +140,8 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/ccny_srvs_node.cpp)
-
+# add_executable(${PROJECT_NAME}_node src/pickup_serv_node.cpp)
+  
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -151,12 +150,7 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
 
 #############
 ## Install ##
@@ -192,17 +186,39 @@ include_directories(
 #   # myfile2
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
+add_executable(pickupserver src/pickup_service.cpp)
+add_dependencies(pickupserver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(pickupserver
+  ${catkin_LIBRARIES}
+)
+
+add_executable(robotid src/type_service.cpp)
+add_dependencies(robotid ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(robotid
+  ${catkin_LIBRARIES}
+)
+
+add_executable(pickupclient src/pickup_client.cpp)
+add_dependencies(pickupclient ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(pickupclient
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Testing ##
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_ccny_srvs.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_pickup_serv.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-

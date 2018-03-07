@@ -10,7 +10,11 @@
  * It also exists so that Controllers have a generic interface to
  * use for processing interrupts in LogicController.
  */
+
 class Controller {
+
+
+
 public:
   Controller() {}
   ~Controller() {}
@@ -27,12 +31,14 @@ public:
 
   //Returns whether or not a controller should be polled for a Result
   virtual bool HasWork() = 0;
-
+  //to do check this enum type
+  virtual string toString()=0;
 protected:
 
   //Looks at external data and determines if an interrupt must be thrown
   //or if the controller should be polled
   virtual void ProcessData() = 0;
+
 };
 
 #endif // CONTROLLER_H

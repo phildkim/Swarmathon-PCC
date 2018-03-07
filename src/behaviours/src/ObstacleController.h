@@ -21,7 +21,7 @@ public:
   void setIgnoreCenterSonar();
   void setCurrentTimeInMilliSecs( long int time );
   void setTargetHeld ();
-
+  string toString(){return "ObstacleController";}
   // Checks if a target is held and if so resets the state of the obestacle controller otherwise does nothing
   void setTargetHeldClear();
   //Asked by logiccontroller to determine if drive controller should have its waypoints cleared

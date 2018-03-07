@@ -15,7 +15,7 @@ public:
   void SetTagData(vector<Tag> tags);
   bool ShouldInterrupt() override;
   bool HasWork() override;
-
+  string toString(){return "PickupController";}
   bool SetSonarData(float rangeCenter);
 
   float getDistance() {return blockDistance;}
@@ -26,7 +26,7 @@ public:
   bool GetTargetHeld() {return targetHeld;}
 
   void SetCurrentTimeInMilliSecs( long int time );
-
+    bool dropset= false;
 protected:
 
   void ProcessData();
