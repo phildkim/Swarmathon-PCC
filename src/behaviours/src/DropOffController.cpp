@@ -101,9 +101,14 @@ Result DropOffController::SearchWork(){
 
       return result;
     }
+
     double distanceToLocation = hypot(this->dropOffLocation.x - this->currentLocation.x, this->dropOffLocation.y - this->currentLocation.y);
     if(distanceToLocation> 0.2&&!dropset){
         //ROS_WARN("%s","Distance is greater than 0.2");
+        if(hypot(currentLocation.x,currentLocation.y)<3.1){
+        dropOffLocation.x=currentLocation.x*0.75;
+        dropOffLocation.y=currentLocation.y*0.75;
+    }
         result.type = waypoint;
         result.wpts.waypoints.clear();
         result.wpts.waypoints.push_back(this->dropOffLocation);

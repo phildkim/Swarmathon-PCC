@@ -118,7 +118,16 @@ Result SearchController::SearchWork(){
     else if (attemptCount >= 5 || attemptCount == 0)
     {
       attemptCount = 1;
-
+      if(initial){
+          Point initial_point;
+          initial_point.x=currentLocation.x*2.5;
+          initial_point.y=currentLocation.y*2.5;
+          result.type = waypoint;
+          result.wpts.waypoints.clear();
+          result.wpts.waypoints.insert(result.wpts.waypoints.begin(),initial_point);
+          initial=false;
+          return result;
+      }
 
       result.type = waypoint;
       Point  searchLocation;
