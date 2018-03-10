@@ -1,9 +1,15 @@
-#include <algorithm>
 #include "SearchController.h"
-#include <angles/angles.h>
-#include <ros/ros.h>
-#include "ccny_srvs/GetPickup.h"
+#include <algorithm>
 #include <math.h>
+#include <angles/angles.h>
+
+#include "ccny_srvs/GetPickup.h"
+#include "ccny_srvs/GetStatus.h"
+#include "ccny_srvs/SetStatus.h"
+
+typedef ccny_srvs::GetStatus Gstatus;
+typedef ccny_srvs::SetStatus Sstatus;
+
 
 SearchController::SearchController() {
   rng = new random_numbers::RandomNumberGenerator();
@@ -20,15 +26,15 @@ SearchController::SearchController() {
   result.wristAngle = M_PI/4;
 
   square_angles = { M_PI/4, 3 * M_PI/4, 5 * M_PI/4, 7 * M_PI/4 };
+
 }
-  
+
 void SearchController::Reset() {
   result.reset = false;
 }
 
 Result SearchController::PickupWork(){
-    ros::NodeHandle nm;
-    ros::ServiceClient pickup_req = nm.serviceClient<ccny_srvs::GetPickup>("pickupgetter");
+
     if (!result.wpts.waypoints.empty()) {
       if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.3) {
         attemptCount = 0;
@@ -165,17 +171,17 @@ return Work(*this);
 }
 
 void SearchController::SetCenterLocation(Point centerLocation) {
-  
+
   float diffX = this->centerLocation.x - centerLocation.x;
   float diffY = this->centerLocation.y - centerLocation.y;
   this->centerLocation = centerLocation;
-  
+
   if (!result.wpts.waypoints.empty())
   {
   result.wpts.waypoints.back().x -= diffX;
   result.wpts.waypoints.back().y -= diffY;
   }
-  
+
 }
 
 void SearchController::SetCurrentLocation(Point currentLocation) {

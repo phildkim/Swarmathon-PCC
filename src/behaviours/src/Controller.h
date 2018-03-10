@@ -2,7 +2,13 @@
 #define CONTROLLER_H
 
 #include "Result.h"
+#include <ros/ros.h>
+#include "ccny_srvs/GetPickup.h"
+#include "ccny_srvs/GetStatus.h"
+#include "ccny_srvs/SetStatus.h"
 
+typedef ccny_srvs::GetStatus Gstatus;
+typedef ccny_srvs::SetStatus Sstatus;
 /*
  * This class is meant to serve as a template for all Controllers,
  * including new Controllers defined by each team.
@@ -38,6 +44,21 @@ protected:
   //Looks at external data and determines if an interrupt must be thrown
   //or if the controller should be polled
   virtual void ProcessData() = 0;
+
+  //Node Handle
+  ros::NodeHandle nm;
+  // Service List
+  ros::ServiceClient set_sample = nm.serviceClient <Sstatus>("mark_samples");
+  ros::ServiceClient set_robot= nm.serviceClient<Sstatus>("set_occupied_rover");
+  ros::ServiceClient set_object=nm.serviceClient<Sstatus>("set_occupied_object");
+  ros::ServiceClient set_route=nm.serviceClient<Sstatus>("set_occupied_planned_route");
+  ros::ServiceClient is_robot=nm.serviceClient<Gstatus>("is_occupied_rover");
+  ros::ServiceClient is_obstacle=nm.serviceClient<Gstatus>("is_occupied_obstacle");
+  ros::ServiceClient is_any=nm.serviceClient<Gstatus>("is_occupied_any");
+  ros::ServiceClient is_route=nm.serviceClient<Gstatus>("is_occupied_planned_route");
+  ros::ServiceClient has_sample=nm.serviceClient<Gstatus>("has_samples");
+  ros::ServiceClient has_searched=nm.serviceClient<Gstatus>("has_been_searched");
+  ros::ServiceClient pickup_req=nm.serviceClient<ccny_srvs::GetPickup>("pickupgetter");
 
 };
 

@@ -5,6 +5,7 @@
 #include <random_numbers/random_numbers.h>
 #include "Controller.h"
 #include <functional>
+#include <ros/ros.h>
 
 /**
  * This class implements the search control algorithm for the rovers. The code
