@@ -1,4 +1,7 @@
+#ifndef HolyRosLibrary
+#define HolyRosLibrary
 #include <ros/ros.h>
+#endif
 
 // ROS libraries
 #include <angles/angles.h>
@@ -35,7 +38,7 @@
 
 // To handle shutdown signals so the node quits
 // properly in response to "rosnode kill"
-#include <ros/ros.h>
+//#include <ros/ros.h>
 #include <signal.h>
 
 #include <exception> // For exception handling

@@ -1,6 +1,6 @@
 #include "LogicController.h"
 #include "CreateLog.h"
-#include <ros/ros.h>
+
 LogicController::LogicController() {
 
   logicState = LOGIC_STATE_INTERRUPT;
@@ -9,6 +9,7 @@ LogicController::LogicController() {
   ProcessData();
 
   control_queue = priority_queue<PrioritizedController>();
+
 
 }
 
@@ -414,6 +415,7 @@ void LogicController::SetModeManual()
   }
 }
 void LogicController::setRobotType(){
+    initialize_services();
     if(this->id%2!=0){
         dropOffController.changeType();
         searchController.setType();

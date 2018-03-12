@@ -3,12 +3,6 @@
 #include <math.h>
 #include <angles/angles.h>
 
-#include "ccny_srvs/GetPickup.h"
-#include "ccny_srvs/GetStatus.h"
-#include "ccny_srvs/SetStatus.h"
-
-typedef ccny_srvs::GetStatus Gstatus;
-typedef ccny_srvs::SetStatus Sstatus;
 
 
 SearchController::SearchController() {
@@ -63,9 +57,9 @@ Result SearchController::PickupWork(){
     if (first_waypoint)
     {
       first_waypoint = false;
-      ccny_srvs::GetPickup msg;
+      GPickup msg;
       msg.request.pickup = true;
-      pickup_req.call(msg);
+      get_pickup.call(msg);
       if(!msg.response.empty){
           searchLocation.x=msg.response.point.x;
           searchLocation.y=msg.response.point.y;
@@ -81,9 +75,9 @@ Result SearchController::PickupWork(){
 
     }
     }else{
-        ccny_srvs::GetPickup msg;
+        GPickup msg;
         msg.request.pickup = true;
-        pickup_req.call(msg);
+        get_pickup.call(msg);
         if(!msg.response.empty){
             searchLocation.x=msg.response.point.x;
             searchLocation.y=msg.response.point.y;

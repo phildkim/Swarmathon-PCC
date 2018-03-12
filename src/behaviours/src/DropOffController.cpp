@@ -1,8 +1,7 @@
 #include "DropOffController.h"
-#include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <ros/console.h>
-#include "ccny_srvs/SetPickup.h"
+
 
 DropOffController::DropOffController() {
 
@@ -36,8 +35,7 @@ Result DropOffController::DoWork(){
 return Work(*this);
 }
 Result DropOffController::SearchWork(){
-    ros::NodeHandle gm;
-    ros::ServiceClient putdown = gm.serviceClient<ccny_srvs::SetPickup>("pickupsetter");
+
     int count = countLeft + countRight;
 
     if(timerTimeElapsed > -1) {
@@ -60,11 +58,11 @@ Result DropOffController::SearchWork(){
           result.b = nextProcess;
           result.reset = true;
           dropset=true;
-          ccny_srvs::SetPickup msg;
+          SPickup msg;
           msg.request.point.x = dropOffLocation.x;
           msg.request.point.y = dropOffLocation.y;
           //ROS_WARN(" drop x:%f y:%f",dropOffLocation.x,dropOffLocation.y);
-          putdown.call(msg);
+          set_pickup.call(msg);
           return result;
         }
         else
@@ -108,7 +106,7 @@ Result DropOffController::SearchWork(){
         if(hypot(currentLocation.x,currentLocation.y)<3.1){
         dropOffLocation.x=currentLocation.x*0.75;
         dropOffLocation.y=currentLocation.y*0.75;
-    }
+        }
         result.type = waypoint;
         result.wpts.waypoints.clear();
         result.wpts.waypoints.push_back(this->dropOffLocation);
