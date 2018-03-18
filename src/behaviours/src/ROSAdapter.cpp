@@ -283,11 +283,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
 
       // initialization has run
       initilized = true;
-      ccny_srvs::RobotType ms;
-      id.call(ms);
-      logicController.id=ms.response.id;
-      logicController.setRobotType();
-      ROS_WARN("ID: %d and NAME: %s",logicController.id,publishedName);
+      logicController.initialize_all_services();
       //TODO: this just sets center to 0 over and over and needs to change
       Point centerOdom;
       centerOdom.x = 0;//1.3 * cos(currentLocation.theta);
@@ -331,9 +327,6 @@ void behaviourStateMachine(const ros::TimerEvent&)
     
     //ask logic controller for the next set of actuator commands
     result = logicController.DoWork();
-    std_msgs::String datamsg;
-    //new CreateLog(&datamsg,&result);
-    //infoLogPublisher.publish(datamsg);
 
     bool wait = false;
     
@@ -510,7 +503,7 @@ void odometryHandler(const nav_msgs::Odometry::ConstPtr& message) {
   double roll, pitch, yaw;
   m.getRPY(roll, pitch, yaw);
   currentLocation.theta = yaw;
-  
+
   linearVelocity = message->twist.twist.linear.x;
   angularVelocity = message->twist.twist.angular.z;
   

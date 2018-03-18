@@ -14,15 +14,35 @@ ros::ServiceClient client2 = n.serviceClient<ccny_srvs::GetPickup>("pickupgetter
 ros::ServiceClient client3 = n.serviceClient<ccny_srvs::RobotType>("getID");
 ccny_srvs::SetPickup ms;
 geometry_msgs::Pose2D po; 
-po.x=atoll(argv[1]);
-po.y=atoll(argv[2]);
-po.theta = 0;
+geometry_msgs::Pose2D po1;
 
-ms.request.point = po;
+po1.x=atoll(argv[1]);
+po1.y=atoll(argv[2]);
+po1.theta = 0;
+po.x=2;
+po.y=2;
+ms.request.point=po;
+client.call(ms);
+po.x=3;
+po.y=4;
+ms.request.point=po;
+client.call(ms);
+po.x=-1;
+po.y=-2;
+ms.request.point=po;
+client.call(ms);
+
+
+
 
 ccny_srvs::GetPickup ms2;
-ms2.request.pickup = true;
 
+
+
+ms2.request.pickup = true;
+po.x=2;
+po.y=2;
+ms2.request.point=po1;
 ccny_srvs::RobotType m3;
 
 //if(client.call(ms)){

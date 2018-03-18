@@ -27,6 +27,11 @@ public:
   //Asked by logiccontroller to determine if drive controller should have its waypoints cleared
   bool getShouldClearWaypoints() {bool tmp = clearWaypoints; clearWaypoints = false; return tmp;}
 
+  void routine();
+
+  void init_services(){
+      initialize_services();
+  }
 protected:
 
   void ProcessData();
@@ -74,6 +79,7 @@ private:
   long int current_time;
   long int timeSinceTags;
   long int delay;
+  long int routine_time;
 
   bool targetHeld = false;
   bool previousTargetState = false;
@@ -83,6 +89,7 @@ private:
   
   bool set_waypoint = false;
   bool can_set_waypoint = false;
+  bool routine_on=false;
 
   float camera_offset_correction = 0.020; //meters;
 };

@@ -9,8 +9,8 @@
 #include "ccny_srvs/SetStatus.h"
 #include <ros/ros.h>
 
-typedef ccny_srvs::GetStatus Gstatus;
-typedef ccny_srvs::SetStatus Sstatus;
+typedef ccny_srvs::GetStatus GStatus;
+typedef ccny_srvs::SetStatus SStatus;
 typedef ccny_srvs::SetPickup SPickup;
 typedef ccny_srvs::GetPickup GPickup;
 /*
@@ -44,21 +44,7 @@ public:
   virtual bool HasWork() = 0;
   //to do check this enum type
   virtual string toString()=0;
-  void initialize_services(){
-      ros::NodeHandle nm;
-      set_sample = nm.serviceClient <Sstatus>("mark_samples");
-      set_robot= nm.serviceClient<Sstatus>("set_occupied_rover");
-      set_object=nm.serviceClient<Sstatus>("set_occupied_object");
-      set_route=nm.serviceClient<Sstatus>("set_occupied_planned_route");
-      is_robot=nm.serviceClient<Gstatus>("is_occupied_rover");
-      is_obstacle=nm.serviceClient<Gstatus>("is_occupied_obstacle");
-      is_any=nm.serviceClient<Gstatus>("is_occupied_any");
-      is_route=nm.serviceClient<Gstatus>("is_occupied_planned_route");
-      has_sample=nm.serviceClient<Gstatus>("has_samples");
-      has_searched=nm.serviceClient<Gstatus>("has_been_searched");
-      get_pickup=nm.serviceClient<GPickup>("pickupgetter");
-      set_pickup=nm.serviceClient<SPickup>("pickupsetter");
-  }
+
 protected:
   //Looks at external data and determines if an interrupt must be thrown
   //or if the controller should be polled
@@ -87,10 +73,40 @@ protected:
     ros::ServiceClient has_searched;
     ros::ServiceClient get_pickup;
     ros::ServiceClient set_pickup;
+    ros::ServiceClient get_pickuplist_size;
 
+    SStatus statusSet;
+    GStatus statusGet;
+    SPickup pickupSet;
+    GPickup pickupGet;
 
   //Defines what each bit in a Grid cell is used for.
+    void initialize_services(){
+        ros::NodeHandle nm;
+        set_sample = nm.serviceClient <SStatus>("mark_samples");
+        set_robot= nm.serviceClient<SStatus>("set_occupied_rover");
+        set_object=nm.serviceClient<SStatus>("set_occupied_object");
+        set_route=nm.serviceClient<SStatus>("set_occupied_planned_route");
+        is_robot=nm.serviceClient<GStatus>("is_occupied_rover");
+        is_obstacle=nm.serviceClient<GStatus>("is_occupied_obstacle");
+        is_any=nm.serviceClient<GStatus>("is_occupied_any");
+        is_route=nm.serviceClient<GStatus>("is_occupied_planned_route");
+        has_sample=nm.serviceClient<GStatus>("has_samples");
+        has_searched=nm.serviceClient<GStatus>("has_been_searched");
+        get_pickup=nm.serviceClient<GPickup>("pickup_getter");
+        set_pickup=nm.serviceClient<SPickup>("pickup_setter");
+        get_pickuplist_size = nm.serviceClient<GPickup>("get_size");
+    }
+    void reset_msgs(){
+    statusSet.request.x=0;
+    statusSet.request.y=0;
+    statusSet.request.data=change::ROVER;
+    statusGet.request.x=0;
+    statusGet.request.y=0;
+    pickupGet.request.pickup = false;
 
+
+    }
 
 };
 

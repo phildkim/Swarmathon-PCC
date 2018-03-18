@@ -26,7 +26,12 @@ public:
   bool GetTargetHeld() {return targetHeld;}
 
   void SetCurrentTimeInMilliSecs( long int time );
-    bool dropset= false;
+  bool dropset= false;
+  void SetCurrentLocation(Point current);
+
+  void init_services(){
+        initialize_services();
+    }
 protected:
 
   void ProcessData();
@@ -45,6 +50,8 @@ private:
   int nTargetsSeen;
   long int millTimer;
   long int target_timer;
+  float idle_timer = 60;
+  float start_idle_time;
 
   //yaw error to target block
   double blockYawError;
@@ -54,6 +61,7 @@ private:
 
   //distance to target block from camera
   double blockDistanceFromCamera;
+  double blockDistanceFromCenter;
 
   //struct for returning data to the ROS adapter
   Result result;
@@ -76,6 +84,8 @@ private:
 
   //this controller has control~
   bool has_control = false;
+
+  Point currentLocation;
 };
 
 #endif // end header define

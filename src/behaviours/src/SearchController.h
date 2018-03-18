@@ -21,7 +21,7 @@ public:
 
   // performs search pattern
   Result DoWork() override;
-  std::function<Result(SearchController&)> Work= &SearchController::PickupWork;
+  Result (SearchController::* Work)()= &SearchController::SearchWork;
   Result PickupWork();
   Result SearchWork();
   bool ShouldInterrupt() override;
@@ -33,6 +33,9 @@ public:
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
   void setType ();
+  void init_services(){
+      initialize_services();
+  }
 protected:
 
   void ProcessData();

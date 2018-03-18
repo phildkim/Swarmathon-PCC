@@ -17,7 +17,7 @@ public:
 
   void Reset() override;
   Result DoWork() override;
-  std::function <Result(DropOffController&)> Work= &DropOffController::PickupWork;
+  Result (DropOffController::*Work)()= &DropOffController::SearchWork;
   bool ShouldInterrupt() override;
   bool HasWork() override;
   string toString(){return "DropController";}
@@ -38,6 +38,10 @@ public:
   void UpdateData(vector<Tag> tags);
   void SetCurrentTimeInMilliSecs( long int time );
    Point currentLocation;
+  void init_services(){
+      initialize_services();
+  }
+
 private:
 
   void ProcessData();
@@ -119,6 +123,7 @@ private:
   //Flag to indicate that we're starting to follow waypoints
   bool startWaypoint;
   bool dropset;
+  bool initial_test =false;
   bool returnpoint;
   Result result;
 

@@ -31,6 +31,7 @@ void ObstacleController::avoidObstacle() {
       result.pd.cmdVel = 0.0;
       result.pd.setPointYaw = 0;
     }
+
 }
 
 // A collection zone was seen in front of the rover and we are not carrying a target
@@ -43,8 +44,10 @@ void ObstacleController::avoidCollectionZone() {
 
     // Decide which side of the rover sees the most april tags and turn away
     // from that side
+
     if(count_left_collection_zone_tags < count_right_collection_zone_tags) {
       result.pd.cmdAngular = K_angular;
+
     } else {
       result.pd.cmdAngular = -K_angular;
     }
@@ -52,7 +55,10 @@ void ObstacleController::avoidCollectionZone() {
     result.pd.setPointVel = 0.0;
     result.pd.cmdVel = 0.0;
     result.pd.setPointYaw = 0;
+
+
 }
+
 
 
 Result ObstacleController::DoWork() {
@@ -61,7 +67,7 @@ Result ObstacleController::DoWork() {
   set_waypoint = true;
   result.PIDMode = CONST_PID;
 
-  // The obstacle is an april tag marking the collection zone
+
   if(collection_zone_seen){
     avoidCollectionZone();
   }
@@ -79,8 +85,8 @@ Result ObstacleController::DoWork() {
     result.type = waypoint; 
     result.PIDMode = FAST_PID; //use fast pid for waypoints
     Point forward;            //waypoint is directly ahead of current heading
-    forward.x = currentLocation.x + (0.5 * cos(currentLocation.theta));
-    forward.y = currentLocation.y + (0.5 * sin(currentLocation.theta));
+    forward.x = currentLocation.x + (0.7 * cos(currentLocation.theta));
+    forward.y = currentLocation.y + (0.7 * sin(currentLocation.theta));
     result.wpts.waypoints.clear();
     result.wpts.waypoints.push_back(forward);
   }
@@ -231,7 +237,7 @@ bool ObstacleController::ShouldInterrupt() {
 }
 
 bool ObstacleController::HasWork() {
-  //there is work if a waypoint needs to be set or the obstacle hasnt been avoided
+  //there is work if a waypoint needs to be set or the obstacle hasnt been avoide
   if (can_set_waypoint && set_waypoint)
   {
     return true;

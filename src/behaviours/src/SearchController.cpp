@@ -20,7 +20,6 @@ SearchController::SearchController() {
   result.wristAngle = M_PI/4;
 
   square_angles = { M_PI/4, 3 * M_PI/4, 5 * M_PI/4, 7 * M_PI/4 };
-
 }
 
 void SearchController::Reset() {
@@ -28,11 +27,13 @@ void SearchController::Reset() {
 }
 
 Result SearchController::PickupWork(){
-
+    ROS_WARN("PICKING UP");
     if (!result.wpts.waypoints.empty()) {
+
       if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.3) {
         attemptCount = 0;
       }
+
     }
 
     if (attemptCount > 0 && attemptCount < 5) {
@@ -45,6 +46,12 @@ Result SearchController::PickupWork(){
     }
     else if (attemptCount >= 5 || attemptCount == 0)
     {
+      get_pickuplist_size.call(pickupGet);
+      if(pickupGet.response.size==0){
+          Work=&SearchController::SearchWork;
+          SearchWork();
+          return result;
+      }
       attemptCount = 1;
 
 
@@ -57,34 +64,61 @@ Result SearchController::PickupWork(){
     if (first_waypoint)
     {
       first_waypoint = false;
-      GPickup msg;
-      msg.request.pickup = true;
-      get_pickup.call(msg);
-      if(!msg.response.empty){
-          searchLocation.x=msg.response.point.x;
-          searchLocation.y=msg.response.point.y;
-          //ROS_WARN("pickup x:%f y:%f",searchLocation.x,searchLocation.y);
+
+      pickupGet.request.pickup = true;
+      pickupGet.request.point.x= currentLocation.x;
+      pickupGet.request.point.y=currentLocation.y;
+
+      get_pickup.call(pickupGet);
+      if(!pickupGet.response.empty){
+          searchLocation.x=pickupGet.response.point.x;
+          searchLocation.y=pickupGet.response.point.y;
+
+          statusSet.request.x= pickupGet.response.point.x;
+          statusSet.request.y= pickupGet.response.point.x;
+          statusSet.request.data=0;
+          set_sample.call(statusSet);
+
       }else{
           if(currentLocation.x!=0){
           curr_angle = atan(currentLocation.y/currentLocation.x);
+          if(currentLocation.x<0&&currentLocation.y<0){
+              curr_angle+=M_PI;
+          }else if(currentLocation.x<0&&currentLocation.y>0){
+              curr_angle+=M_PI;
+          }else if(currentLocation.x>0&&currentLocation.y<0){
+              curr_angle+=2*M_PI;
+          }
           }
           radius = +rng->uniformReal(1,3);
           angle = (curr_angle+rng->uniformReal(-M_PI/4,M_PI/4));
        searchLocation.x = radius*cos(angle);
        searchLocation.y = radius*sin(angle);
 
+
+
     }
     }else{
-        GPickup msg;
-        msg.request.pickup = true;
-        get_pickup.call(msg);
-        if(!msg.response.empty){
-            searchLocation.x=msg.response.point.x;
-            searchLocation.y=msg.response.point.y;
-            //ROS_WARN("pickup x:%f y:%f",searchLocation.x,searchLocation.y);
+        pickupGet.request.pickup = true;
+        get_pickup.call(pickupGet);
+        if(!pickupGet.response.empty){
+            searchLocation.x=pickupGet.response.point.x;
+            searchLocation.y=pickupGet.response.point.y;
+
+            statusSet.request.x= pickupGet.response.point.x;
+            statusSet.request.y= pickupGet.response.point.x;
+            statusSet.request.data=0;
+            set_sample.call(statusSet);
         }else{
             if(currentLocation.x!=0){
             curr_angle = atan(currentLocation.y/currentLocation.x);
+            if(currentLocation.x<0&&currentLocation.y<0){
+                curr_angle+=M_PI;
+            }else if(currentLocation.x<0&&currentLocation.y>0){
+                curr_angle+=M_PI;
+            }else if(currentLocation.x>0&&currentLocation.y<0){
+                curr_angle+=2*M_PI;
+            }
             }
             radius = +rng->uniformReal(1,3);
             angle = (curr_angle+rng->uniformReal(-M_PI/4,M_PI/4));
@@ -93,18 +127,22 @@ Result SearchController::PickupWork(){
 
     }
     }
+
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
+    reset_msgs();
     return result;
 }
 
 }
 Result SearchController::SearchWork(){
-
+    ROS_WARN("Searching");
     if (!result.wpts.waypoints.empty()) {
-      if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.3) {
-        attemptCount = 0;
-      }
+
+        if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.3) {
+            attemptCount = 0;
+        }
+
     }
 
     if (attemptCount > 0 && attemptCount < 5) {
@@ -117,6 +155,12 @@ Result SearchController::SearchWork(){
     }
     else if (attemptCount >= 5 || attemptCount == 0)
     {
+      get_pickuplist_size.call(pickupGet);
+      if(pickupGet.response.size>10){
+          Work=&SearchController::PickupWork;
+          PickupWork();
+          return result;
+      }
       attemptCount = 1;
       if(initial){
           Point initial_point;
@@ -139,7 +183,15 @@ Result SearchController::SearchWork(){
       first_waypoint = false;
       if(currentLocation.x!=0){
       curr_angle = atan(currentLocation.y/currentLocation.x);
+      if(currentLocation.x<0&&currentLocation.y<0){
+          curr_angle+=M_PI;
+      }else if(currentLocation.x<0&&currentLocation.y>0){
+          curr_angle+=M_PI;
+      }else if(currentLocation.x>0&&currentLocation.y<0){
+          curr_angle+=2*M_PI;
       }
+      }
+
       radius = +rng->uniformReal(3,5);
       angle = (curr_angle+rng->uniformReal(-M_PI/4,M_PI/4));
       searchLocation.x = radius*cos(angle);
@@ -147,12 +199,20 @@ Result SearchController::SearchWork(){
     }else{
         if(currentLocation.x!=0){
         curr_angle = atan(currentLocation.y/currentLocation.x);
+        if(currentLocation.x<0&&currentLocation.y<0){
+            curr_angle+=M_PI;
+        }else if(currentLocation.x<0&&currentLocation.y>0){
+            curr_angle+=M_PI;
+        }else if(currentLocation.x>0&&currentLocation.y<0){
+            curr_angle+=2*M_PI;
+        }
         }
         radius = +rng->uniformReal(3,5);
         angle = (curr_angle+rng->uniformReal(-M_PI/4,M_PI/4));
         searchLocation.x = radius*cos(angle);
         searchLocation.y = radius*sin(angle);
     }
+
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
     return result;
@@ -161,7 +221,7 @@ Result SearchController::SearchWork(){
 }
 
 Result SearchController::DoWork() {
-return Work(*this);
+return (this->*SearchController::Work)();
 }
 
 void SearchController::SetCenterLocation(Point centerLocation) {
@@ -200,5 +260,9 @@ void SearchController::SetSuccesfullPickup() {
 }
 
 void SearchController::setType(){
-    Work=&SearchController::SearchWork;
+    if(Work==&SearchController::PickupWork){
+        Work=&SearchController::SearchWork;
+    }else{
+        Work=&SearchController::PickupWork;
+    }
 }
