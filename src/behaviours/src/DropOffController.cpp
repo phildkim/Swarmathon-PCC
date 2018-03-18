@@ -57,7 +57,7 @@ Result DropOffController::SearchWork(){
     if(reachedCollectionPoint)
     {
       cout << "2" << endl;
-      if (timerTimeElapsed >= 2.5)
+      if (timerTimeElapsed >= 3)
       {
         //ROS_WARN("%s","Timer is greater than 5 seconds");
         if (finalInterrupt)
@@ -155,7 +155,7 @@ Result DropOffController::PickupWork(){
     if(reachedCollectionPoint)
     {
       cout << "2" << endl;
-      if (timerTimeElapsed >= 2.5)
+      if (timerTimeElapsed >= 3)
       {
           //ROS_WARN("%s","We have reached collection point and also timer is greater than 5");
         if (finalInterrupt)

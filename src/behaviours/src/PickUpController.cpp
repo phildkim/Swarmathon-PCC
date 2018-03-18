@@ -202,6 +202,7 @@ Result PickUpController::DoWork()
      result.pd.cmdVel=-2.0;
      return result;
   }
+
   has_control = true;
 
   if (!targetHeld)
