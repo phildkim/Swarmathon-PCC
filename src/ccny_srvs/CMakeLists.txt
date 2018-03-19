@@ -67,6 +67,10 @@ add_service_files(
   RobotType.srv
   GetPoint.srv
   SetPoint.srv
+  GetStatistic.srv
+  SetStatistic.srv
+  GetAddress.srv
+
 )
 
 ## Generate actions in the 'action' folder
