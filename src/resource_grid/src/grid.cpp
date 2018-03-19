@@ -7,26 +7,32 @@
 #include "geometry_msgs/Pose2D.h"
 #include <queue>
 
+
 struct Cell {
 bool sample;
 };
 
+// comparator used intside the priority queue.
 struct comparator{
     bool operator() (geometry_msgs::Pose2D a,geometry_msgs::Pose2D b ){
         return (a.theta<b.theta);
     }
 };
 
+//custom Types
 typedef ccny_srvs::SetPoint SetPoint;
 typedef ccny_srvs::GetPoint GetPoint;
 typedef std::priority_queue<geometry_msgs::Pose2D,std::vector<geometry_msgs::Pose2D>, comparator> queue_t;
 
+
+// Grid Attributes
 std::vector<Cell> rows;
 std::vector< std::vector<Cell> > grid;
 std::size_t size = 222;
 std::size_t offset = 110;
 queue_t high_priority_points;
 
+//sets the location of a sample in the grid.
 bool sample_setter(SetPoint::Request& req,SetPoint::Response& res){
     if(hypot(req.point.x,req.point.y)<1.9){
         return true;
@@ -41,6 +47,7 @@ bool sample_setter(SetPoint::Request& req,SetPoint::Response& res){
 
 
 }
+//unset the location of a sample inside the grid.
 bool unset_sample(SetPoint::Request& req,SetPoint::Response& res){
     int x = (req.point.x*10)+offset;
     int y = (req.point.y*10)+offset;
@@ -48,6 +55,13 @@ bool unset_sample(SetPoint::Request& req,SetPoint::Response& res){
     grid.at(x).at(y).sample=false;
 
 }
+
+//Statistic functinon
+
+/*Looks into the portion of the grid given by the range in the parameters.
+ * tries to find the average of the location where the most samples are
+ * Sends that average location as a return value.
+ */
 geometry_msgs::Pose2D perform_stats(int x_low,int x_high,int y_low, int y_high){
     int x_bar=0;
     int y_bar=0;
@@ -82,6 +96,8 @@ geometry_msgs::Pose2D perform_stats(int x_low,int x_high,int y_low, int y_high){
 
 
 }
+
+//Retrieves best possible location in the grid for resource collection.
 bool get_point(GetPoint::Request& req,GetPoint::Response& res){
     high_priority_points = queue_t();
 
@@ -107,6 +123,8 @@ bool get_point(GetPoint::Request& req,GetPoint::Response& res){
 }
 
 
+
+//INITIAL CODE
 int main(int argc, char **argv) {
     rows = std::vector<Cell>(size,Cell());
     rows.resize(size);
