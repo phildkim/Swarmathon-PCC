@@ -446,8 +446,15 @@ void LogicController::SetModeManual()
   }
 }
 void LogicController::setRobotType(){
-        dropOffController.changeType();
-        searchController.setType();
+        if(searchController.Work==&SearchController::SearchWork){
+           dropOffController.Work=&DropOffController::PickupWork;
+           searchController.Work=&SearchController::PickupWork;
+           ROS_WARN("PickupWork enabled");
+        }else{
+            dropOffController.Work=&DropOffController::SearchWork;
+            searchController.Work=&SearchController::SearchWork;
+            ROS_WARN("Search WOrk Enabled");
+        }
 }
 void LogicController::initialize_all_services(){
 searchController.init_services();

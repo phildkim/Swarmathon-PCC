@@ -192,7 +192,7 @@ Result SearchController::SearchWork(){
       }
       }
 
-      radius = +rng->uniformReal(3.2,5);
+      radius = +rng->uniformReal(3.2,6.9);
       angle = (curr_angle+rng->uniformReal(-M_PI/3,M_PI/3));
       searchLocation.x = radius*cos(angle);
       searchLocation.y = radius*sin(angle);
@@ -207,7 +207,7 @@ Result SearchController::SearchWork(){
             curr_angle+=2*M_PI;
         }
         }
-        radius = +rng->uniformReal(3.2,5);
+        radius = +rng->uniformReal(3.2,6.9);
         angle = (curr_angle+rng->uniformReal(-M_PI/3,M_PI/3));
         searchLocation.x = radius*cos(angle);
         searchLocation.y = radius*sin(angle);

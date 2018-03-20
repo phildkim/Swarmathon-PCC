@@ -54,12 +54,10 @@ Result DropOffController::SearchWork(){
         dropofftimer=current_time/1e3;
      }
      if(((current_time/1e3)-dropofftimer)>20 && !reachedCollectionPoint){
-         result.type=behavior;
-         result.b=nextProcess;
-         result.reset= false;
-         reachedCollectionPoint = true;
-         returnTimer = current_time;
-         return result;
+         float current_distance =hypot(currentLocation.x,currentLocation.y);
+         dropOffLocation.x=current_distance*cos(currentLocation.theta+0.3)/2;
+         dropOffLocation.y=current_distance*sin(currentLocation.theta+0.3)/2;
+         dropofftimer=current_time/1e3;
      }
 
     //if we are in the routine for exiting the circle once we have dropped a block off and reseting all our flags
@@ -224,7 +222,7 @@ Result DropOffController::PickupWork(){
     dropOffLocation.x= currentLocation.x*0.75;
     dropOffLocation.y=currentLocation.y*0.75;
     double angletocenter =  atan(currentLocation.x/distanceToCenter);
-    ROS_WARN("X: %f Y:%f  angle: %f angle2center: %f",dropOffLocation.x,dropOffLocation.y,distanceToCenter,angletocenter);
+
     //double distanceToLocation = hypot(this->currentLocation.x/2,this->currentLocation.y/2);// This must be moved to a controlled area where specific functions are set for different robot types.
     //check to see if we are driving to the center location or if we need to drive in a circle and look.
     if (distanceToCenter > 0.65) {
