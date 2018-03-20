@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cmath>
 #include <iterator>
 #include <sys/types.h>
 #include <sys/mman.h>
@@ -165,13 +164,17 @@ void GridManager::Grid::convolve(int8_t x_base, int8_t y_base, operation_t opera
 	for(int8_t x = x_base - 2; x <= x_base + 2; x++) {
 		for(int8_t y = y_base - 2; y <= y_base + 2; y++) {
 			checkGridBounds(x, y);
+			float val = operation(x, x_base, y, y_base);
+
 			ROS_INFO(
-				"[Coordinate is (%d, %d) with value %f]",
+				"[grid_service] Coordinate is (%d, %d) with value [%f] and stride [%u]",
 				x,
 				y,
-				operation(x, x_base, y, y_base)
+				val,
+				stride
 			);
-			getCell(x, y)->setCellStatistic(operation(x, x_base, y, y_base), stride);
+
+			this->getCell(x, y)->setCellStatistic(stride, val);
 		}
 	}
 }
@@ -189,7 +192,7 @@ void GridManager::Grid::enqueue(int8_t x, int8_t y, float data, uint8_t stride, 
 	convolve(
 		x,
 		y,
-		[](int8_t x_f, int8_t x_i, int8_t y_f, int8_t y_i) {
+		[](int8_t x_f, int8_t x_i, int8_t y_f, int8_t y_i) -> float {
 			if((x_f == x_i) && (y_f == y_i))
 				return 1.0;
 			else
@@ -199,6 +202,30 @@ void GridManager::Grid::enqueue(int8_t x, int8_t y, float data, uint8_t stride, 
 	);
 
 	fresh_nodes[topic].push_back(data_point);
+}
+
+void GridManager::Grid::update(const std::string& topic, uint8_t stride) {
+	std::remove_if(fresh_nodes[topic].begin(), fresh_nodes[topic].end(), [stride, this](const data_t& node) {
+		this->convolve(
+			node.x,
+			node.y,
+			[stride, this](int8_t x_f, int8_t x_i, int8_t y_f, int8_t y_i) -> float {
+				return std::max(0.0, this->getCell(x_f, y_f)->getCellStatistic(stride) - 0.1);
+			},
+			stride
+		);
+
+		bool ans = this->getCell(node.x, node.y)->getCellStatistic(stride) < 0.1;
+
+		ROS_INFO
+		// Check if selected cell's desirability value has decayed severely.
+		return ans;
+	});
+
+	ROS_INFO(
+		"[grid_service] Nodes in list: [%u]",
+		fresh_nodes[topic].size()
+	);
 }
 
 void GridManager::Grid::checkGridBounds(int8_t x, int8_t y) {

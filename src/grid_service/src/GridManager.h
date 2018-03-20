@@ -112,6 +112,7 @@ private:
 		// Convenience functions
 		void addTopic(const std::string&);
 		void enqueue(int8_t, int8_t, float, uint8_t, const std::string&);
+		void update(const std::string&, uint8_t);
 
 		void checkGridBounds(int8_t, int8_t);
 		Cell * getCell(int8_t, int8_t);
@@ -147,7 +148,7 @@ private:
 	bool getStatus(get_status_request_t&, get_status_response_t&, uint8_t, uint8_t, uint8_t);
 	bool setStatus(set_status_request_t&, set_status_response_t&, uint8_t, uint8_t, uint8_t);
 
-	//bool performDataOperation(const timer_event_t&, operation_t, uint8_t, const std::string&);
+	void performDataOperation(const timer_event_t&, uint8_t, const std::string&);
 
 	Grid grid;
 
@@ -186,7 +187,7 @@ public:
 	ros::ServiceServer registerStatusGetter(const std::string&, uint8_t, uint8_t, uint8_t);
 	ros::ServiceServer registerStatusSetter(const std::string&, uint8_t, uint8_t, uint8_t);
 
-	//ros::Timer registerGridOperation(float, operation_t, const std::string&, uint8_t);
+	ros::Timer registerGridOperation(float, const std::string&, uint8_t);
 
 	static uint8_t bit(uint8_t);
 	static int8_t to_coordinate(float);
