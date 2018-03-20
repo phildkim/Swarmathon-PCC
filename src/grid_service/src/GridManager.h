@@ -33,6 +33,7 @@
 #ifndef GRID_MANAGER_H
 #define GRID_MANAGER_H
 
+#include <cmath>
 #include <cstdint>
 #include <deque>
 #include <list>

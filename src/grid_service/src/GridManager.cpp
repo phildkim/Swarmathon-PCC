@@ -73,7 +73,7 @@ uint8_t GridManager::bit(uint8_t bit) {
 }
 
 int8_t GridManager::to_coordinate(float input) {
-	return (int8_t) (input * 10);
+	return (int8_t) std::round(input * 10.0);
 }
 
 float GridManager::to_float(int8_t input) {

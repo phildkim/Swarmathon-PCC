@@ -162,11 +162,11 @@ void GridManager::Grid::addRows(int8_t y) {
 /* Public functions */
 void GridManager::Grid::convolve(int8_t x_base, int8_t y_base, operation_t operation, uint8_t stride) {
 	// Apply mathematical function around area
-	for(int8_t x = (int8_t) x_center + x_base - 2; x <= (int8_t) x_center + x_base + 2; x++) {
-		for(int8_t y = (int8_t) y_center + y_base - 2; y <= (int8_t) y_center + y_base + 2; y++) {
+	for(int8_t x = x_base - 2; x <= x_base + 2; x++) {
+		for(int8_t y = y_base - 2; y <= y_base + 2; y++) {
 			checkGridBounds(x, y);
 			ROS_INFO(
-				"[%d\n%d\n%f]",
+				"[Coordinate is (%d, %d) with value %f]",
 				x,
 				y,
 				operation(x, x_base, y, y_base)
