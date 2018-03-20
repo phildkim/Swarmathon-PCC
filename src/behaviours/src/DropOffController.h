@@ -78,7 +78,7 @@ private:
   //Previous tag count
   int prevCount;
 
-
+  long int dropofftimer;
   /*
      *  Cached External Information
      */

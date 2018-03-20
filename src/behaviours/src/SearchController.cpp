@@ -48,8 +48,8 @@ Result SearchController::PickupWork(){
     {
       get_pickuplist_size.call(pickupGet);
       if(pickupGet.response.size==0){
-          Work=&SearchController::SearchWork;
           SearchWork();
+          result.change_type=true;
           return result;
       }
       attemptCount = 1;
@@ -157,8 +157,8 @@ Result SearchController::SearchWork(){
     {
       get_pickuplist_size.call(pickupGet);
       if(pickupGet.response.size>10){
-          Work=&SearchController::PickupWork;
           PickupWork();
+          result.change_type=true;
           return result;
       }
       attemptCount = 1;

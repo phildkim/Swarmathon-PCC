@@ -139,7 +139,7 @@ protected:
         //Pickup List
         get_pickup=nm.serviceClient<GPickup>("pickup_getter");
         set_pickup=nm.serviceClient<SPickup>("pickup_setter");
-        get_pickuplist_size = nm.serviceClient<GPickup>("get_size");
+        get_pickuplist_size = nm.serviceClient<GPickup>("list_size");
 
     }
 

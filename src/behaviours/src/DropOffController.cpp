@@ -50,7 +50,17 @@ Result DropOffController::SearchWork(){
 
       long int elapsed = current_time - returnTimer;
       timerTimeElapsed = elapsed/1e3; // Convert from milliseconds to seconds
-    }
+    }else{
+        dropofftimer=current_time/1e3;
+     }
+     if(((current_time/1e3)-dropofftimer)>20 && !reachedCollectionPoint){
+         result.type=behavior;
+         result.b=nextProcess;
+         result.reset= false;
+         reachedCollectionPoint = true;
+         returnTimer = current_time;
+         return result;
+     }
 
     //if we are in the routine for exiting the circle once we have dropped a block off and reseting all our flags
     //to resart our search.
