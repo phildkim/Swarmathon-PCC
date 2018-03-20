@@ -156,7 +156,7 @@ Result SearchController::SearchWork(){
     else if (attemptCount >= 5 || attemptCount == 0)
     {
       get_pickuplist_size.call(pickupGet);
-      if(pickupGet.response.size>10){
+      if(pickupGet.response.size>6){
           PickupWork();
           result.change_type=true;
           return result;
