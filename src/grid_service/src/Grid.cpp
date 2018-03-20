@@ -215,11 +215,8 @@ void GridManager::Grid::update(const std::string& topic, uint8_t stride) {
 			stride
 		);
 
-		bool ans = this->getCell(node.x, node.y)->getCellStatistic(stride) < 0.1;
-
-		ROS_INFO
 		// Check if selected cell's desirability value has decayed severely.
-		return ans;
+		return this->getCell(node.x, node.y)->getCellStatistic(stride) < 0.1;
 	});
 
 	ROS_INFO(
