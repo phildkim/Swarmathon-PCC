@@ -160,6 +160,47 @@ void GridManager::Grid::addRows(int8_t y) {
 }
 
 /* Public functions */
+void GridManager::Grid::convolve(int8_t x_base, int8_t y_base, operation_t operation, uint8_t stride) {
+	// Apply mathematical function around area
+	for(int8_t x = (int8_t) x_center + x_base - 2; x <= (int8_t) x_center + x_base + 2; x++) {
+		for(int8_t y = (int8_t) y_center + y_base - 2; y <= (int8_t) y_center + y_base + 2; y++) {
+			checkGridBounds(x, y);
+			ROS_INFO(
+				"[%d\n%d\n%f]",
+				x,
+				y,
+				operation(x, x_base, y, y_base)
+			);
+			getCell(x, y)->setCellStatistic(operation(x, x_base, y, y_base), stride);
+		}
+	}
+}
+
+void GridManager::Grid::addTopic(const std::string& topic) {
+	fresh_nodes[topic] = std::list<data_t>();
+}
+
+void GridManager::Grid::enqueue(int8_t x, int8_t y, float data, uint8_t stride, const std::string& topic) {
+	data_t data_point;
+	data_point.x = x;
+	data_point.y = y;
+	data_point.data = data;
+
+	convolve(
+		x,
+		y,
+		[](int8_t x_f, int8_t x_i, int8_t y_f, int8_t y_i) {
+			if((x_f == x_i) && (y_f == y_i))
+				return 1.0;
+			else
+				return 1/(2 * std::sqrt(std::pow(x_f - x_i, 2) + std::pow(y_f - y_i, 2)));
+		},
+		stride
+	);
+
+	fresh_nodes[topic].push_back(data_point);
+}
+
 void GridManager::Grid::checkGridBounds(int8_t x, int8_t y) {
 	ROS_DEBUG(
 		"[grid_service] Grid bounds currently are (%d, %d) (top-left) and (%d, %d) (bottom-right)",

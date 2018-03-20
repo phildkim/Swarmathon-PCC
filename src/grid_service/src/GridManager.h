@@ -35,6 +35,8 @@
 
 #include <cstdint>
 #include <deque>
+#include <list>
+#include <map>
 #include <memory>
 #include <string>
 
@@ -50,14 +52,21 @@
 
 class GridManager {
 private:
+	// 
+	typedef std::function<float(int8_t, int8_t, int8_t, int8_t)>	operation_t;
+
 	// Inner class
 	class Grid {
 	private:
 		// Specify Layout of cell here.
         struct Layout {
-                uint8_t status_registers[4];
-                float statistic_registers[2];
+			uint8_t status_registers[4];
+			float statistic_registers[2];
         };
+		typedef struct {
+			int8_t x, y;
+			float data;
+		} data_t;
 
 		// Mmap variables.
 		const size_t cell_size, page_size, mmap_stride;	
@@ -65,9 +74,11 @@ private:
         uint8_t * mmap_free_addr;
 
 		// Grid typedefs
-		typedef std::shared_ptr<Cell>	cell_t;
-		typedef std::deque<cell_t>      column_t;
-		typedef std::deque<column_t>    row_t;
+		typedef std::shared_ptr<Cell>		cell_t;
+		typedef std::deque<cell_t>      	column_t;
+		typedef std::deque<column_t>    	row_t;
+
+		std::map<std::string, std::list<data_t>> fresh_nodes;
 
 		// Grid variables
 		std::deque<column_t> grid;
@@ -93,12 +104,20 @@ private:
 		Grid();
 		Grid(uint8_t);
 		~Grid();
+		
+		// Algorithm functions
+		void convolve(int8_t, int8_t, operation_t, uint8_t);
 
 		// Convenience functions
+		void addTopic(const std::string&);
+		void enqueue(int8_t, int8_t, float, uint8_t, const std::string&);
+
 		void checkGridBounds(int8_t, int8_t);
 		Cell * getCell(int8_t, int8_t);
 	};
 	
+	
+
 	// Message typedefs
 	typedef ccny_srvs::GetAddress::Request		get_address_request_t;
 	typedef ccny_srvs::GetAddress::Response		get_address_response_t;
@@ -113,17 +132,21 @@ private:
 	typedef ccny_srvs::SetStatus::Request		set_status_request_t;
 	typedef ccny_srvs::SetStatus::Response		set_status_response_t;
 
+	typedef ros::TimerEvent						timer_event_t;
+
 	ros::NodeHandle node;
 	
 	// Cell accessors & mutators
 	bool getAddress(get_address_request_t&, get_address_response_t&);
 
 	bool getStatistic(get_statistic_request_t&, get_statistic_response_t&, uint8_t);
-	bool setStatistic(set_statistic_request_t&, set_statistic_response_t&, uint8_t);
+	bool setStatistic(set_statistic_request_t&, set_statistic_response_t&, uint8_t, const std::string&);
 
 	bool getStatus(get_status_request_t&, get_status_response_t&, uint8_t, uint8_t);
 	bool getStatus(get_status_request_t&, get_status_response_t&, uint8_t, uint8_t, uint8_t);
 	bool setStatus(set_status_request_t&, set_status_response_t&, uint8_t, uint8_t, uint8_t);
+
+	//bool performDataOperation(const timer_event_t&, operation_t, uint8_t, const std::string&);
 
 	Grid grid;
 
@@ -162,7 +185,11 @@ public:
 	ros::ServiceServer registerStatusGetter(const std::string&, uint8_t, uint8_t, uint8_t);
 	ros::ServiceServer registerStatusSetter(const std::string&, uint8_t, uint8_t, uint8_t);
 
+	//ros::Timer registerGridOperation(float, operation_t, const std::string&, uint8_t);
+
 	static uint8_t bit(uint8_t);
+	static int8_t to_coordinate(float);
+	static float to_float(int8_t);
 };
 
 #endif
