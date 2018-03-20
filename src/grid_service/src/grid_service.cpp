@@ -47,6 +47,8 @@ int main(int argc, char **argv) {
 
         ros::ServiceServer update_num_of_samples =      grid_manager.registerStatusSetter("update_num_of_samples",	        2, 0, ~0        );
         
+        ros::Timer desirability_decay =                 grid_manager.registerGridOperation(10.0, "update_desirability_index", 1);
+
 	ros::spin();
 
 	return 0;

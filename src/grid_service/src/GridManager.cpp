@@ -57,15 +57,16 @@ ros::ServiceServer GridManager::registerStatusSetter(const std::string &name, ui
 	);
 }
 
-/*
-ros::Timer GridManager::registerGridOperation(float duration, operation_t operation, const std::string &name, uint8_t stride) {
+
+ros::Timer GridManager::registerGridOperation(float duration, const std::string &name, uint8_t stride) {
 	return node.createTimer(
 		ros::Duration(duration),
-		boost::bind(&GridManager::performDataOperation, this, operation, name, stride)
+		[this, name, stride] (const timer_event_t& event) { 
+			this->grid.update(name, stride);
+			ROS_INFO("[grid_service] Updated active nodes");
+		}
 	);
 }
-*/
-
 
 /* Static Methods */
 uint8_t GridManager::bit(uint8_t bit) {
@@ -181,20 +182,8 @@ bool GridManager::setStatus(set_status_request_t& req, set_status_response_t& re
 	
 	return true;
 }
-/*
-void GridManager::performDataOperation(const timer_event_t& event, operation_t operation, uint8_t stride, const std::string& name) {
-	grid.update()
 
-	grid.getCell(x, y)->setCellStatistic(stride, req.data);
-
-	ROS_DEBUG(
-		"[grid_service] Statistic Register of Cell (%d, %d) at address [%p] is now set to: [%f]",
-		x,
-		y,
-		grid.getCell(x, y)->getCellAddress(),
-		req.data
-	);
-	
-	return true;
+void GridManager::performDataOperation(const timer_event_t& event, uint8_t stride, const std::string& name) {
+	grid.update(name, stride);
+	ROS_DEBUG("[grid_service] Updated active nodes");
 }
-*/
