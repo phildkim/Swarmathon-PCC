@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cmath>
 #include <iterator>
 #include <sys/types.h>
 #include <sys/mman.h>
@@ -165,15 +164,24 @@ void GridManager::Grid::convolve(int8_t x_base, int8_t y_base, operation_t opera
 	for(int8_t x = x_base - 2; x <= x_base + 2; x++) {
 		for(int8_t y = y_base - 2; y <= y_base + 2; y++) {
 			checkGridBounds(x, y);
+			float val = operation(x, x_base, y, y_base);
+
 			ROS_INFO(
-				"[Coordinate is (%d, %d) with value %f]",
+				"[grid_service] Coordinate is (%d, %d) with value [%f] and stride [%u]",
 				x,
 				y,
-				operation(x, x_base, y, y_base)
+				val,
+				stride
 			);
-			getCell(x, y)->setCellStatistic(operation(x, x_base, y, y_base), stride);
+
+			this->getCell(x, y)->setCellStatistic(stride, val);
 		}
 	}
+
+	ROS_INFO(
+		"[grid_service] Value at (17, 17) is [%f]",
+		getCell(1.7, 1.7)->getCellStatistic(stride)
+	);
 }
 
 void GridManager::Grid::addTopic(const std::string& topic) {
@@ -189,7 +197,7 @@ void GridManager::Grid::enqueue(int8_t x, int8_t y, float data, uint8_t stride, 
 	convolve(
 		x,
 		y,
-		[](int8_t x_f, int8_t x_i, int8_t y_f, int8_t y_i) {
+		[](int8_t x_f, int8_t x_i, int8_t y_f, int8_t y_i) -> float {
 			if((x_f == x_i) && (y_f == y_i))
 				return 1.0;
 			else
