@@ -464,6 +464,7 @@ void LogicController::setRobotType(){
             searchController.Work=&SearchController::SearchWork;
             ROS_WARN("Search WOrk Enabled");
         }
+
 }
 void LogicController::initialize_all_services(){
 searchController.init_services();
