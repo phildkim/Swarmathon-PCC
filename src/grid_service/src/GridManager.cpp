@@ -95,6 +95,7 @@ bool GridManager::getAddress(get_address_request_t& req, get_address_response_t&
 bool GridManager::getMostValuablePoint(mvpoint_request_t& req, mvpoint_response_t& res) {
 	res.x = GridManager::to_float(grid.getMVP_X())/10.0;
 	res.y = GridManager::to_float(grid.getMVP_Y())/10.0;
+	res.exists = !((res.x == 0.0) && (res.y == 0.0));
 
 	ROS_INFO(
 		"[grid_service] Most valuable point at (%f, %f)",
