@@ -201,7 +201,12 @@ void GridManager::Grid::enqueue(int8_t x, int8_t y, float data, uint8_t stride, 
 		stride
 	);
 
-	fresh_nodes[topic].push_back(data_point);
+	std::list<data_t>::iterator it = find_if(fresh_nodes[topic].begin(), fresh_nodes[topic].end(), [x, y](const data_t& node) {
+		return (node.x == x) && (node.y == y);
+	});
+
+	if(it == fresh_nodes[topic].end())
+		fresh_nodes[topic].push_back(data_point);
 }
 
 int8_t GridManager::Grid::getMVP_X() {
