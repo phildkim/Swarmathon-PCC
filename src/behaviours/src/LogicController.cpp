@@ -369,10 +369,10 @@ void LogicController::SetAprilTags(vector<Tag> tags)
           double bdist=hypot(i.getPositionX(),i.getPositionY());
           float x=bdist*cos(dropOffController.currentLocation.theta)+dropOffController.currentLocation.x;
           float y=bdist*sin(dropOffController.currentLocation.theta)+dropOffController.currentLocation.y;
-          statusSet.request.x=x;
-          statusSet.request.y=y;
-          statusSet.request.data=1;
-          set_sample.call(statusSet);
+          statisticSet.request.x=x;
+          statisticSet.request.y=y;
+          statisticSet.request.data=1;
+          update_desirability_index.call(statisticSet);
           ROS_DEBUG("Setting sample at [%f,%f]"
                     ,x
                     ,y
