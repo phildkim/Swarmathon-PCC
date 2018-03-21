@@ -9,6 +9,7 @@
 #include "ccny_srvs/SetStatus.h"
 #include "ccny_srvs/GetStatistic.h"
 #include "ccny_srvs/SetStatistic.h"
+#include "ccny_srvs/GetMVPoint.h"
 #include <ros/ros.h>
 
 typedef ccny_srvs::GetStatus GStatus;
@@ -17,6 +18,7 @@ typedef ccny_srvs::SetPickup SPickup;
 typedef ccny_srvs::GetPickup GPickup;
 typedef ccny_srvs::GetStatistic GStatistic;
 typedef ccny_srvs::SetStatistic SStatistic;
+typedef ccny_srvs::GetMVPoint GMVP;
 
 /*
  * This class is meant to serve as a template for all Controllers,
@@ -89,7 +91,7 @@ protected:
     ros::ServiceClient get_num_samples;
     ros::ServiceClient flag_new_occupancy_data;
     ros::ServiceClient update_num_samples;
-
+    ros::ServiceClient get_MVP;
     //Reusable Messages
     SStatistic statisticSet;
     GStatistic statisticGet;
@@ -97,6 +99,7 @@ protected:
     GStatus statusGet;
     SPickup pickupSet;
     GPickup pickupGet;
+    GMVP MVPget;
 
     //Initialize all services for a specific Controller.
     //Has issues initializing with the initialization of
@@ -141,6 +144,8 @@ protected:
         set_pickup=nm.serviceClient<SPickup>("pickup_setter");
         get_pickuplist_size = nm.serviceClient<GPickup>("list_size");
 
+        //MVP
+        get_MVP=nm.serviceClient<GMVP>("most_valuable_point");
     }
 
 

@@ -337,7 +337,7 @@ void LogicController::SetPositionData(Point currentLocation)
 
   statusSet.request.x=dropOffController.currentLocation.x;
   statusSet.request.x=dropOffController.currentLocation.y;
-  statusSet.request.data=change::ROVER;
+  statusSet.request.data=1;
   set_robot.call(statusSet);
 }
 
@@ -363,12 +363,21 @@ void LogicController::SetAprilTags(vector<Tag> tags)
   obstacleController.setTagData(tags);
   dropOffController.SetTargetData(tags);
   if (processState == PROCCESS_STATE_SEARCHING){ // marking tags needs to be done
+
   for(auto i: tags){
       if(i.getID()==0){
           double bdist=hypot(i.getPositionX(),i.getPositionY());
           float x=bdist*cos(dropOffController.currentLocation.theta)+dropOffController.currentLocation.x;
           float y=bdist*sin(dropOffController.currentLocation.theta)+dropOffController.currentLocation.y;
-          //ROS_WARN("X: %f , Y: %f",x,y);
+          statusSet.request.x=x;
+          statusSet.request.y=y;
+          statusSet.request.data=1;
+          set_sample.call(statusSet);
+          ROS_DEBUG("Setting sample at [%f,%f]"
+                    ,x
+                    ,y
+                   );
+
       }
   }
   }

@@ -78,17 +78,21 @@ Result SearchController::PickupWork(){
           statusSet.request.y= pickupGet.response.point.x;
           statusSet.request.data=0;
           set_sample.call(statusSet);
+          ROS_DEBUG("Unsetting Sample at [X: %d,Y: %d]"
+                    ,searchLocation.x
+                    ,searchLocation.y
+                    );
 
       }else{
           if(currentLocation.x!=0){
-          curr_angle = atan(currentLocation.y/currentLocation.x);
-          if(currentLocation.x<0&&currentLocation.y<0){
-              curr_angle+=M_PI;
-          }else if(currentLocation.x<0&&currentLocation.y>0){
-              curr_angle+=M_PI;
-          }else if(currentLocation.x>0&&currentLocation.y<0){
-              curr_angle+=2*M_PI;
-          }
+            curr_angle = atan(currentLocation.y/currentLocation.x);
+            if(currentLocation.x<0&&currentLocation.y<0){
+                  curr_angle+=M_PI;
+            }else if(currentLocation.x<0&&currentLocation.y>0){
+                  curr_angle+=M_PI;
+            }else if(currentLocation.x>0&&currentLocation.y<0){
+                  curr_angle+=2*M_PI;
+            }
           }
           radius = +rng->uniformReal(1,2.6);
           angle = (curr_angle+rng->uniformReal(-M_PI/3,M_PI/3));
@@ -109,6 +113,10 @@ Result SearchController::PickupWork(){
             statusSet.request.y= pickupGet.response.point.x;
             statusSet.request.data=0;
             set_sample.call(statusSet);
+            ROS_DEBUG("Unsetting Sample at [X: %d,Y: %d]"
+                      ,searchLocation.x
+                      ,searchLocation.y
+                      );
         }else{
             if(currentLocation.x!=0){
             curr_angle = atan(currentLocation.y/currentLocation.x);
@@ -125,7 +133,7 @@ Result SearchController::PickupWork(){
          searchLocation.x = radius*cos(angle);
          searchLocation.y = radius*sin(angle);
 
-    }
+        }
     }
 
     result.wpts.waypoints.clear();
@@ -178,41 +186,60 @@ Result SearchController::SearchWork(){
       float radius;
       float angle;
       float curr_angle;
+
     if (first_waypoint)
     {
       first_waypoint = false;
-      if(currentLocation.x!=0){
-      curr_angle = atan(currentLocation.y/currentLocation.x);
-      if(currentLocation.x<0&&currentLocation.y<0){
-          curr_angle+=M_PI;
-      }else if(currentLocation.x<0&&currentLocation.y>0){
-          curr_angle+=M_PI;
-      }else if(currentLocation.x>0&&currentLocation.y<0){
-          curr_angle+=2*M_PI;
-      }
-      }
+      get_MVP.call(MVPget);
+      if(MVPget.response.exists){
+          searchLocation.x=MVPget.response.x;
+          searchLocation.y=MVPget.response.y;
 
-      radius = +rng->uniformReal(3.2,6.9);
-      angle = (curr_angle+rng->uniformReal(-M_PI/3,M_PI/3));
-      searchLocation.x = radius*cos(angle);
-      searchLocation.y = radius*sin(angle);
-    }else{
+      }else{
         if(currentLocation.x!=0){
         curr_angle = atan(currentLocation.y/currentLocation.x);
         if(currentLocation.x<0&&currentLocation.y<0){
-            curr_angle+=M_PI;
+              curr_angle+=M_PI;
         }else if(currentLocation.x<0&&currentLocation.y>0){
-            curr_angle+=M_PI;
+              curr_angle+=M_PI;
         }else if(currentLocation.x>0&&currentLocation.y<0){
-            curr_angle+=2*M_PI;
+              curr_angle+=2*M_PI;
         }
         }
+
         radius = +rng->uniformReal(3.2,6.9);
         angle = (curr_angle+rng->uniformReal(-M_PI/3,M_PI/3));
         searchLocation.x = radius*cos(angle);
         searchLocation.y = radius*sin(angle);
+      }
+    }else{
+           get_MVP.call(MVPget);
+           if(MVPget.response.exists){
+            searchLocation.x=MVPget.response.x;
+            searchLocation.y=MVPget.response.y;
+           }else{
+               if(currentLocation.x!=0){
+                curr_angle = atan(currentLocation.y/currentLocation.x);
+                    if(currentLocation.x<0&&currentLocation.y<0){
+                        curr_angle+=M_PI;
+                    }else if(currentLocation.x<0&&currentLocation.y>0){
+                        curr_angle+=M_PI;
+                    }else if(currentLocation.x>0&&currentLocation.y<0){
+                        curr_angle+=2*M_PI;
+                    }
+                }
+                radius = +rng->uniformReal(3.2,6.9);
+                angle = (curr_angle+rng->uniformReal(-M_PI/3,M_PI/3));
+                searchLocation.x = radius*cos(angle);
+                searchLocation.y = radius*sin(angle);
+
+            }
     }
 
+    ROS_WARN("GOING TO SEARCH [%f , %f]"
+         ,searchLocation.x
+        ,searchLocation.y
+        );
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
     return result;

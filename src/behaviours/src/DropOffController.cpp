@@ -195,7 +195,7 @@ Result DropOffController::PickupWork(){
           result.pd.cmdVel = 0;
           result.pd.cmdAngularError = -3.0;
       }
-      else if (timerTimeElapsed >= 0.1)
+      else
       {
         //ROS_WARN("%s","TImer is greater than 0.1 and not greater than 5");
         isPrecisionDriving = true;

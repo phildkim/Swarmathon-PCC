@@ -72,7 +72,7 @@ void ObstacleController::avoidCollectionZone() {
     }
 
     result.pd.setPointVel = 0.0;
-    result.pd.cmdVel = 0.0;
+    result.pd.cmdVel = -1;
     result.pd.setPointYaw = 0;
  a_collection=true;
 
