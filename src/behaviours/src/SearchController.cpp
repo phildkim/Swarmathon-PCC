@@ -135,6 +135,11 @@ Result SearchController::PickupWork(){
 
         }
     }
+    if(hypot(currentLocation.x,currentLocation.y)<1){
+        curr_angle+=M_PI/6;
+        searchLocation.x=1.5*cos(curr_angle);
+        searchLocation.y=1.5*sin(curr_angle);
+    }
 
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
@@ -145,6 +150,12 @@ Result SearchController::PickupWork(){
 }
 Result SearchController::SearchWork(){
     ROS_WARN("Searching");
+    get_rob_num.call(robnumGet);
+    if(robnumGet.response.id<4){
+        map_size=mega;
+    }else{
+        map_size=semi;
+    }
     if (!result.wpts.waypoints.empty()) {
 
         if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.3) {
@@ -207,7 +218,7 @@ Result SearchController::SearchWork(){
         }
         }
 
-        radius = +rng->uniformReal(3.2,6.9);
+        radius = +rng->uniformReal(3.2,map_size);
         angle = (curr_angle+rng->uniformReal(-M_PI/3,M_PI/3));
         searchLocation.x = radius*cos(angle);
         searchLocation.y = radius*sin(angle);
@@ -228,7 +239,7 @@ Result SearchController::SearchWork(){
                         curr_angle+=2*M_PI;
                     }
                 }
-                radius = +rng->uniformReal(3.2,6.9);
+                radius = +rng->uniformReal(3.2,map_size);
                 angle = (curr_angle+rng->uniformReal(-M_PI/3,M_PI/3));
                 searchLocation.x = radius*cos(angle);
                 searchLocation.y = radius*sin(angle);

@@ -105,7 +105,7 @@ Result ObstacleController::DoWork() {
     Point forward; //waypoint is directly ahead of current heading
     if(a_obstacle){
 
-            if(hypot(currentLocation.x,currentLocation.y)<0.8){
+            if(hypot(currentLocation.x,currentLocation.y)<0.9){
                 forward.x = currentLocation.x*1.20;
                 forward.y = currentLocation.y*1.20;
                 result.wpts.waypoints.clear();

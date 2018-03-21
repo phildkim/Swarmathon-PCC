@@ -59,6 +59,10 @@ private:
   bool first_waypoint = true;
   bool succesfullPickup = false;
   bool initial = true;
+  float semi= 6.7;
+  float mega=10.5;
+  float map_size=semi;
+
 };
 
 #endif /* SEARCH_CONTROLLER */
