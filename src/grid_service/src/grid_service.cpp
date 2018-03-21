@@ -16,6 +16,7 @@ int main(int argc, char **argv) {
 	GridManager grid_manager;
 
         ros::ServiceServer get_cell_address =           grid_manager.addressGetter();
+        ros::ServiceServer get_most_valuable_point =    grid_manager.MVPGetter();
 
         // Statistics
         ros::ServiceServer get_traversal_cost =         grid_manager.registerStatisticGetter("get_traversal_cost",              0);

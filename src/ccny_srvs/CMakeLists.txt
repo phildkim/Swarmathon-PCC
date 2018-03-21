@@ -62,6 +62,7 @@ add_service_files(
   SetStatus.srv
   GetCoordinates.srv
   SetCoordinates.srv
+  GetMVPoint.srv
   GetPickup.srv
   SetPickup.srv
   RobotType.srv

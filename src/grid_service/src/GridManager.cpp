@@ -20,6 +20,10 @@ ros::ServiceServer GridManager::addressGetter() {
 	return node.advertiseService("get_cell_address", &GridManager::getAddress, this);
 }
 
+ros::ServiceServer GridManager::MVPGetter() {
+	return node.advertiseService("most_valuable_point", &GridManager::getMostValuablePoint, this);
+}
+
 ros::ServiceServer GridManager::registerStatisticGetter(const std::string &name, uint8_t stride) {
 	return node.advertiseService<get_statistic_request_t, get_statistic_response_t>(
 		name,
@@ -78,12 +82,25 @@ int8_t GridManager::to_coordinate(float input) {
 }
 
 float GridManager::to_float(int8_t input) {
-	return ((float) input)/10;
+	return input;
 }
 
 /* Private Methods */
 bool GridManager::getAddress(get_address_request_t& req, get_address_response_t& res) {
 	res.address = reinterpret_cast<uint64_t>(&(*grid.getCell(req.x, req.y)));
+
+	return true;
+}
+
+bool GridManager::getMostValuablePoint(mvpoint_request_t& req, mvpoint_response_t& res) {
+	res.x = GridManager::to_float(grid.getMVP_X())/10.0;
+	res.y = GridManager::to_float(grid.getMVP_Y())/10.0;
+
+	ROS_INFO(
+		"[grid_service] Most valuable point at (%f, %f)",
+		res.x,
+		res.y
+	);
 
 	return true;
 }

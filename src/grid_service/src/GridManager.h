@@ -50,6 +50,7 @@
 #include "ccny_srvs/SetStatistic.h"
 #include "ccny_srvs/GetStatus.h"
 #include "ccny_srvs/SetStatus.h"
+#include "ccny_srvs/GetMVPoint.h"
 
 class GridManager {
 private:
@@ -64,6 +65,7 @@ private:
 			uint8_t status_registers[4];
 			float statistic_registers[2];
         };
+
 		typedef struct {
 			int8_t x, y;
 			float data;
@@ -98,7 +100,7 @@ private:
 		*    in the Grid.
 		**/
 		std::shared_ptr<Cell> createCell();
-		void addColumns(int8_t); 
+		void addColumns(int8_t);
 		void addRows(int8_t);
 
 	public:
@@ -112,6 +114,8 @@ private:
 		// Convenience functions
 		void addTopic(const std::string&);
 		void enqueue(int8_t, int8_t, float, uint8_t, const std::string&);
+		int8_t getMVP_X();
+		int8_t getMVP_Y();
 		void update(const std::string&, uint8_t);
 
 		void checkGridBounds(int8_t, int8_t);
@@ -134,12 +138,16 @@ private:
 	typedef ccny_srvs::SetStatus::Request		set_status_request_t;
 	typedef ccny_srvs::SetStatus::Response		set_status_response_t;
 
+	typedef ccny_srvs::GetMVPoint::Request		mvpoint_request_t;
+	typedef ccny_srvs::GetMVPoint::Response		mvpoint_response_t;
+
 	typedef ros::TimerEvent						timer_event_t;
 
 	ros::NodeHandle node;
 	
 	// Cell accessors & mutators
 	bool getAddress(get_address_request_t&, get_address_response_t&);
+	bool getMostValuablePoint(mvpoint_request_t&, mvpoint_response_t&);
 
 	bool getStatistic(get_statistic_request_t&, get_statistic_response_t&, uint8_t);
 	bool setStatistic(set_statistic_request_t&, set_statistic_response_t&, uint8_t, const std::string&);
@@ -179,6 +187,7 @@ public:
 	 *    for compatibility with C++03.)
 	**/
 	ros::ServiceServer addressGetter();
+	ros::ServiceServer MVPGetter();
 
 	ros::ServiceServer registerStatisticGetter(const std::string&, uint8_t);
 	ros::ServiceServer registerStatisticSetter(const std::string&, uint8_t);

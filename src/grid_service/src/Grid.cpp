@@ -204,8 +204,16 @@ void GridManager::Grid::enqueue(int8_t x, int8_t y, float data, uint8_t stride, 
 	fresh_nodes[topic].push_back(data_point);
 }
 
+int8_t GridManager::Grid::getMVP_X() {
+	return fresh_nodes["update_desirability_index"].begin()->x;
+}
+
+int8_t GridManager::Grid::getMVP_Y() {
+	return fresh_nodes["update_desirability_index"].begin()->y;
+}
+
 void GridManager::Grid::update(const std::string& topic, uint8_t stride) {
-	std::remove_if(fresh_nodes[topic].begin(), fresh_nodes[topic].end(), [stride, this](const data_t& node) {
+	std::list<data_t>::iterator it = std::remove_if(fresh_nodes[topic].begin(), fresh_nodes[topic].end(), [stride, this](const data_t& node) {
 		this->convolve(
 			node.x,
 			node.y,
@@ -216,13 +224,19 @@ void GridManager::Grid::update(const std::string& topic, uint8_t stride) {
 		);
 
 		// Check if selected cell's desirability value has decayed severely.
-		return this->getCell(node.x, node.y)->getCellStatistic(stride) < 0.1;
+		return this->getCell(node.x, node.y)->getCellStatistic(stride) < 0.01;
 	});
+
+	fresh_nodes[topic].erase(it, fresh_nodes[topic].end());
 
 	ROS_INFO(
 		"[grid_service] Nodes in list: [%u]",
 		fresh_nodes[topic].size()
 	);
+
+	fresh_nodes[topic].sort([stride, this] (const data_t& l_node, const data_t& r_node) {
+		return this->getCell(l_node.x, l_node.y)->getCellStatistic(stride) > this->getCell(r_node.x, r_node.y)->getCellStatistic(stride);
+	});
 }
 
 void GridManager::Grid::checkGridBounds(int8_t x, int8_t y) {
