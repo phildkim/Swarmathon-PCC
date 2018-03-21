@@ -284,6 +284,8 @@ void behaviourStateMachine(const ros::TimerEvent&)
       // initialization has run
       initilized = true;
       logicController.initialize_all_services();
+      ccny_srvs::RobotType ms;
+      id.call(ms);
       //TODO: this just sets center to 0 over and over and needs to change
       Point centerOdom;
       centerOdom.x = 0;//1.3 * cos(currentLocation.theta);
