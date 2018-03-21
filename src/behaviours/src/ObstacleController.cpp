@@ -20,17 +20,37 @@ void ObstacleController::Reset() {
 
 // Avoid crashing into objects detected by the ultraound
 void ObstacleController::avoidObstacle() {
-  
-    //always turn left to avoid obstacles
-    if (right < 0.8 || center < 0.8 || left < 0.8) {
-      result.type = precisionDriving;
 
-      result.pd.cmdAngular = -K_angular;
+    if(right <0.5){
+            result.type = precisionDriving;
 
-      result.pd.setPointVel = 0.0;
-      result.pd.cmdVel = 0.0;
-      result.pd.setPointYaw = 0;
-    }
+            result.pd.cmdAngular = K_angular;
+
+            result.pd.setPointVel = 0.0;
+            result.pd.cmdVel = 0.0;
+            result.pd.setPointYaw = 0;
+        }else if (left<0.5){
+
+            result.type = precisionDriving;
+
+            result.pd.cmdAngular = -K_angular;
+
+            result.pd.setPointVel = 0.0;
+            result.pd.cmdVel = 0.0;
+            result.pd.setPointYaw = 0;
+
+        }else if(center<0.5){
+            result.type = precisionDriving;
+
+            result.pd.cmdAngular = K_angular;
+
+            result.pd.setPointVel = 0.0;
+            result.pd.cmdVel = -1.0;
+            result.pd.setPointYaw = 0;
+        }
+
+        a_obstacle=true;
+
 }
 
 // A collection zone was seen in front of the rover and we are not carrying a target
@@ -43,16 +63,21 @@ void ObstacleController::avoidCollectionZone() {
 
     // Decide which side of the rover sees the most april tags and turn away
     // from that side
+
     if(count_left_collection_zone_tags < count_right_collection_zone_tags) {
       result.pd.cmdAngular = K_angular;
+
     } else {
       result.pd.cmdAngular = -K_angular;
     }
 
     result.pd.setPointVel = 0.0;
-    result.pd.cmdVel = 0.0;
+    result.pd.cmdVel = -1;
     result.pd.setPointYaw = 0;
+ a_collection=true;
+
 }
+
 
 
 Result ObstacleController::DoWork() {
@@ -61,7 +86,7 @@ Result ObstacleController::DoWork() {
   set_waypoint = true;
   result.PIDMode = CONST_PID;
 
-  // The obstacle is an april tag marking the collection zone
+
   if(collection_zone_seen){
     avoidCollectionZone();
   }
@@ -75,15 +100,34 @@ Result ObstacleController::DoWork() {
     can_set_waypoint = false; //only one waypoint is set
     set_waypoint = false;
     clearWaypoints = false;
-
-    result.type = waypoint; 
+    result.type = waypoint;
     result.PIDMode = FAST_PID; //use fast pid for waypoints
-    Point forward;            //waypoint is directly ahead of current heading
-    forward.x = currentLocation.x + (0.5 * cos(currentLocation.theta));
-    forward.y = currentLocation.y + (0.5 * sin(currentLocation.theta));
-    result.wpts.waypoints.clear();
-    result.wpts.waypoints.push_back(forward);
-  }
+    Point forward; //waypoint is directly ahead of current heading
+    if(a_obstacle){
+
+            if(hypot(currentLocation.x,currentLocation.y)<0.9){
+                forward.x = currentLocation.x*1.20;
+                forward.y = currentLocation.y*1.20;
+                result.wpts.waypoints.clear();
+                result.wpts.waypoints.push_back(forward);
+            }else{
+                forward.x = currentLocation.x + (0.7 * cos(currentLocation.theta));
+                forward.y = currentLocation.y + (0.7 * sin(currentLocation.theta));
+                result.wpts.waypoints.clear();
+                result.wpts.waypoints.push_back(forward);
+            }
+        }else if(a_collection){
+            result.type = waypoint;
+            result.PIDMode = FAST_PID; //use fast pid for waypoints
+            Point forward;            //waypoint is directly ahead of current heading
+            forward.x = currentLocation.x + (0.7 * cos(currentLocation.theta));
+            forward.y = currentLocation.y + (0.7 * sin(currentLocation.theta));
+            result.wpts.waypoints.clear();
+            result.wpts.waypoints.push_back(forward);
+        }
+      }
+      a_obstacle=false;
+      a_collection=false;
 
   return result;
 }
@@ -231,7 +275,7 @@ bool ObstacleController::ShouldInterrupt() {
 }
 
 bool ObstacleController::HasWork() {
-  //there is work if a waypoint needs to be set or the obstacle hasnt been avoided
+  //there is work if a waypoint needs to be set or the obstacle hasnt been avoide
   if (can_set_waypoint && set_waypoint)
   {
     return true;

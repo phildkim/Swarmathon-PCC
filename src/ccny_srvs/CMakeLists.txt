@@ -62,9 +62,16 @@ add_service_files(
   SetStatus.srv
   GetCoordinates.srv
   SetCoordinates.srv
+  GetMVPoint.srv
   GetPickup.srv
   SetPickup.srv
   RobotType.srv
+  GetPoint.srv
+  SetPoint.srv
+  GetStatistic.srv
+  SetStatistic.srv
+  GetAddress.srv
+
 )
 
 ## Generate actions in the 'action' folder

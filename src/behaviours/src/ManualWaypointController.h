@@ -57,6 +57,10 @@ public:
    // This should be called regularly to prevent memory leaks.
    std::vector<int> ReachedWaypoints();
    
+   void init_services(){
+       initialize_services();
+   }
+
 protected:
    void ProcessData() override;
    

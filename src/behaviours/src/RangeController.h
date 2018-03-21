@@ -27,6 +27,8 @@ class RangeShapeInvalidParameterException : public std::exception {
     return message.c_str();
   }
 
+
+
  private:
   std::string msg;
 };
@@ -127,6 +129,9 @@ class RangeController : virtual Controller {
   void setCurrentLocation( Point current );
   void setEnabled( bool enabled );  
   
+  void init_services(){
+      initialize_services();
+  }
   // Destructor
   ~RangeController();
 

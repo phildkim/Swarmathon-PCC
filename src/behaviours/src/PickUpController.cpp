@@ -91,7 +91,8 @@ void PickUpController::SetTagData(vector<Tag> tags)
     //cout << "blockDistance  TAGDATA:  " << blockDistance << endl;
 
     blockYawError = atan((tags[target].getPositionX() + cameraOffsetCorrection)/blockDistance)*0.85; //angle to block from bottom center of chassis on the horizontal.
-
+    blockDistanceFromCenter= hypot(tags[target].getPositionX(),tags[target].getPositionY());
+    blockDistanceFromCenter=hypot(blockDistanceFromCenter*cos(currentLocation.theta)+currentLocation.x,blockDistanceFromCenter*sin(currentLocation.theta)+currentLocation.y);
 
 
     cout << "blockYawError TAGDATA:  " << blockYawError << endl;
@@ -128,6 +129,7 @@ void PickUpController::ProcessData()
     // Do nothing
     return;
   }
+
 
   //diffrence between current time and millisecond time
   long int Tdiff = current_time - millTimer;
@@ -186,6 +188,19 @@ bool PickUpController::ShouldInterrupt(){
 
 Result PickUpController::DoWork()
 {
+  if(result.change_type){
+      result.type=behavior;
+      result.b=wait;
+      result.reset=true;
+      return result;
+  }
+  if(blockDistanceFromCenter<0.5&&!targetHeld){
+     result.type=precisionDriving;
+     result.fingerAngle = M_PI_2;
+     result.wristAngle = 0;
+     result.pd.cmdVel=-2.0;
+     return result;
+  }
 
   has_control = true;
 
@@ -231,11 +246,11 @@ Result PickUpController::DoWork()
     // If we don't see any blocks or cubes turn towards the location of the last cube we saw.
     // I.E., try to re-aquire the last cube we saw.
 
-    float grasp_time_begin = 1.16;
+    float grasp_time_begin = 1.2;
     float raise_time_begin = 2.0;
     float lower_gripper_time_begin = 4.0;
     float target_reaquire_begin= 4.2;
-    float target_pickup_task_time_limit = 4.8;
+    float target_pickup_task_time_limit = 3.5;
 
     //cout << "blockDistance DOWORK:  " << blockDistance << endl;
 
@@ -348,6 +363,21 @@ Result PickUpController::DoWork()
 
 bool PickUpController::HasWork()
 {
+  if(targetFound){
+      start_idle_time=current_time/1e3;
+      result.change_type=false;
+      return targetFound;
+  }
+
+  if(!targetFound && start_idle_time==0){
+      start_idle_time=current_time/1e3;
+  }else if(!targetFound){
+      ROS_WARN("start time: %f, current_time: %f ",start_idle_time,(float)(current_time/1e3));
+      if((current_time/1e3)-start_idle_time>idle_timer){
+          result.change_type=true;
+          return true;
+      }
+    }
   return targetFound;
 }
 
@@ -360,7 +390,7 @@ void PickUpController::Reset() {
   nTargetsSeen = 0;
   blockYawError = 0;
   blockDistance = 0;
-
+  start_idle_time=current_time/1e3;
   targetFound = false;
   interupted = false;
   targetHeld = false;
@@ -381,4 +411,7 @@ void PickUpController::SetUltraSoundData(bool blockBlock){
 void PickUpController::SetCurrentTimeInMilliSecs( long int time )
 {
   current_time = time;
+}
+void PickUpController::SetCurrentLocation(Point current){
+    currentLocation= current;
 }

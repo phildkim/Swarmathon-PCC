@@ -1,4 +1,6 @@
 bool pickup
+geometry_msgs/Pose2D point
 ---
 geometry_msgs/Pose2D point
 bool empty
+uint8 size

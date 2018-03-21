@@ -27,6 +27,11 @@ public:
   //Asked by logiccontroller to determine if drive controller should have its waypoints cleared
   bool getShouldClearWaypoints() {bool tmp = clearWaypoints; clearWaypoints = false; return tmp;}
 
+  void routine();
+
+  void init_services(){
+      initialize_services();
+  }
 protected:
 
   void ProcessData();
@@ -43,11 +48,11 @@ private:
   // and are those AprilTags oriented towards or away from the camera.
   bool checkForCollectionZoneTags( vector<Tag> );
   
-  const float K_angular = 1.2; //radians a second turn rate to avoid obstacles
+  const float K_angular = 1.05; //radians a second turn rate to avoid obstacles
   const float reactivate_center_sonar_threshold = 0.8; //reactive center sonar if it goes back above this distance, assuming it is deactivated
   const int targetCountPivot = 6; ///unused variable
   const float obstacleDistancePivot = 0.2526; ///unused variable
-  const float triggerDistance = 0.8;
+  const float triggerDistance = 0.5;
 
   /*
      * Member variables
@@ -74,6 +79,7 @@ private:
   long int current_time;
   long int timeSinceTags;
   long int delay;
+  long int routine_time;
 
   bool targetHeld = false;
   bool previousTargetState = false;
@@ -83,7 +89,9 @@ private:
   
   bool set_waypoint = false;
   bool can_set_waypoint = false;
-
+  bool routine_on=false;
+  bool a_obstacle=false;
+  bool a_collection=false;
   float camera_offset_correction = 0.020; //meters;
 };
 

@@ -86,6 +86,7 @@ public:
   void setVirtualFenceOff( );
   void setRobotType();
   int id;
+  void initialize_all_services();
 protected:
   void ProcessData();
 

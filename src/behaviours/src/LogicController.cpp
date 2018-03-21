@@ -1,6 +1,6 @@
 #include "LogicController.h"
 #include "CreateLog.h"
-
+#include <cmath>
 LogicController::LogicController() {
 
   logicState = LOGIC_STATE_INTERRUPT;
@@ -82,6 +82,10 @@ Result LogicController::DoWork() {
     result = control_queue.top().controller->DoWork();
     //anaylyze the result that was returned and do state changes accordingly
     //behavior types are used to indicate behavior changes of some form
+    if(result.change_type){
+        setRobotType();
+        result.change_type=false;
+    }
     if(result.type == behavior) {
 
       //ask for an external reset so the state of the controller is preserved untill after it has returned a result and
@@ -314,12 +318,27 @@ void LogicController::controllerInterconnect()
 // Recieves position in the world inertial frame (should rename to SetOdomPositionData)
 void LogicController::SetPositionData(Point currentLocation) 
 {
+  //REmove previous location from grid.
+
+  statusSet.request.x=dropOffController.currentLocation.x;
+  statusSet.request.x=dropOffController.currentLocation.y;
+  statusSet.request.data=0;
+  set_robot.call(statusSet);
+
   searchController.SetCurrentLocation(currentLocation);
   dropOffController.SetCurrentLocation(currentLocation);
   obstacleController.setCurrentLocation(currentLocation);
   driveController.SetCurrentLocation(currentLocation);
   manualWaypointController.SetCurrentLocation(currentLocation);
-  //ROS_INFO("current x:%f y:%f",currentLocation.x,currentLocation.y);
+  pickUpController.SetCurrentLocation(currentLocation);
+
+  //Update Location on Grid.
+
+
+  statusSet.request.x=dropOffController.currentLocation.x;
+  statusSet.request.x=dropOffController.currentLocation.y;
+  statusSet.request.data=1;
+  set_robot.call(statusSet);
 }
 
 // Recieves position in the world frame with global data (GPS)
@@ -343,6 +362,27 @@ void LogicController::SetAprilTags(vector<Tag> tags)
   pickUpController.SetTagData(tags);
   obstacleController.setTagData(tags);
   dropOffController.SetTargetData(tags);
+  if (processState == PROCCESS_STATE_SEARCHING){ // marking tags needs to be done
+
+  for(auto i: tags){
+      if(i.getID()==0){
+          double bdist=hypot(i.getPositionX(),i.getPositionY());
+          float x=bdist*cos(dropOffController.currentLocation.theta)+dropOffController.currentLocation.x;
+          float y=bdist*sin(dropOffController.currentLocation.theta)+dropOffController.currentLocation.y;
+          statisticSet.request.x=x;
+          statisticSet.request.y=y;
+          statisticSet.request.data=1;
+          update_desirability_index.call(statisticSet);
+          ROS_DEBUG("Setting sample at [%f,%f]"
+                    ,x
+                    ,y
+                   );
+
+      }
+  }
+  }
+
+
 }
 
 void LogicController::SetSonarData(float left, float center, float right) 
@@ -415,9 +455,23 @@ void LogicController::SetModeManual()
   }
 }
 void LogicController::setRobotType(){
-    initialize_services();
-    if(this->id%2!=0){
-        dropOffController.changeType();
-        searchController.setType();
-    }
+        if(searchController.Work==&SearchController::SearchWork){
+           dropOffController.Work=&DropOffController::PickupWork;
+           searchController.Work=&SearchController::PickupWork;
+           ROS_WARN("PickupWork enabled");
+        }else{
+            dropOffController.Work=&DropOffController::SearchWork;
+            searchController.Work=&SearchController::SearchWork;
+            ROS_WARN("Search WOrk Enabled");
+        }
+
+}
+void LogicController::initialize_all_services(){
+searchController.init_services();
+dropOffController.init_services();
+pickUpController.init_services();
+obstacleController.init_services();
+pickUpController.init_services();
+manualWaypointController.init_services();
+range_controller.init_services();
 }

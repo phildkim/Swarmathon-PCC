@@ -78,6 +78,6 @@ struct Result {
   float fingerAngle = -1; //holds commanded for finger angle, defualt is -1 no movment
   float wristAngle = -1; //"                  " wrist angle, "                        "
   PIDType PIDMode; //hold the PID type selected for use
-
+  bool change_type=false;
   bool reset; //holds a reset command where logic controller will reset the controller that asks
 };
