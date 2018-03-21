@@ -151,7 +151,7 @@ Result SearchController::PickupWork(){
 Result SearchController::SearchWork(){
     ROS_WARN("Searching");
     get_rob_num.call(robnumGet);
-    if(robnumGet.response.id<4){
+    if(robnumGet.response.id>4){
         map_size=mega;
     }else{
         map_size=semi;
