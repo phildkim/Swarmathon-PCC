@@ -618,7 +618,7 @@ void joyCmdHandler(const sensor_msgs::Joy::ConstPtr& message) {
 
 void publishStatusTimerEventHandler(const ros::TimerEvent&) {
   std_msgs::String msg;
-  msg.data = "CityCollegeNewYork: CCNY_FIRST_Robotics FTW";
+  msg.data = "(CCNY) CityCollegeNewYork: CCNY_FIRST_Robotics FTW";
   status_publisher.publish(msg);
 }
 
