@@ -32,6 +32,7 @@
 
 // Include Controllers
 #include "LogicController.h"
+#include "PositionPublisher.hpp"
 #include <vector>
 #include "Point.h"
 #include "Tag.h"
@@ -77,7 +78,7 @@ void resultHandler();
 
 Point updateCenterLocation();
 void transformMapCentertoOdom();
-
+PositionPublisher* positionPublisher;
 // Numeric Variables for rover positioning
 geometry_msgs::Pose2D currentLocation;
 geometry_msgs::Pose2D currentLocationMap;
@@ -180,6 +181,7 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, (publishedName + "_BEHAVIOUR"), ros::init_options::NoSigintHandler);
   ros::NodeHandle mNH;
   id = mNH.serviceClient<pcc_srvs::RobotType>("getID");
+  positionPublisher = new PositionPublisher(mNH, publishedName);
   // Register the SIGINT event handler so the node can shutdown properly
   signal(SIGINT, sigintEventHandler);
   
@@ -229,7 +231,7 @@ int main(int argc, char **argv) {
   timerStartTime = time(0);
   
   ros::spin();
-  
+  delete positionPublisher;
   return EXIT_SUCCESS;
 }
 

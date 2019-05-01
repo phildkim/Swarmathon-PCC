@@ -13,8 +13,8 @@ void PositionPublisher::setDetections(std::vector<Tag> tags, Point current_posit
    int cube_tag_count = std::count_if(tags.begin(), tags.end(), [](Tag t) { 
         return t.getID() == 0; 
     });
-	//&& (fabs(current_position.x) > 1 || fabs(current_position.y) > 1
-   if(cube_tag_count > 3 ))
+	//
+   if(cube_tag_count > 3 && (fabs(current_position.x) > 1 || fabs(current_position.y) > 1))
    {
       // then there is definitely more than one cube
       swarmie_msgs::Recruitment r;
