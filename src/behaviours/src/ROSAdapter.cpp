@@ -435,7 +435,10 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
 							    tagPose.pose.orientation.w ) );
       tags.push_back(loc);
     }
-    
+     Point curr_loc;
+    curr_loc.x = currentLocationMap.x;
+    curr_loc.y = currentLocationMap.y;
+    positionPublisher->setDetections(tags, curr_loc);
     logicController.SetAprilTags(tags);
   }
   
