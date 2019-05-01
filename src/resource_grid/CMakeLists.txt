@@ -8,12 +8,12 @@ project(resource_grid)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  ccny_srvs
+  pcc_srvs
   geometry_msgs
   roscpp
   std_msgs
   std_srvs	
- message_generation
+  message_generation
   message_runtime
 )
 
@@ -28,7 +28,7 @@ catkin_package(
 #  LIBRARIES pickup_serv
 #  CATKIN_DEPENDS roscpp rospy rostopic std_msgs std_srvs
 #  DEPENDS system_lib
-   CATKIN_DEPENDS roscpp ccny_srvs std_msgs geometry_msgs
+   CATKIN_DEPENDS roscpp pcc_srvs std_msgs geometry_msgs
 )
 add_executable(resources_grid src/grid.cpp)
 add_dependencies(resources_grid ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -38,10 +38,3 @@ target_link_libraries(resources_grid
   ${catkin_LIBRARIES}
 )
 
-add_executable(client_grid src/grid_client.cpp)
-add_dependencies(client_grid ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Specify libraries to link a library or executable target against
-target_link_libraries(client_grid
-  ${catkin_LIBRARIES}
-)

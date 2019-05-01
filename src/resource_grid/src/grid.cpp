@@ -1,7 +1,7 @@
 #include <vector>
 #include <ros/ros.h>
-#include "ccny_srvs/SetPoint.h"
-#include "ccny_srvs/GetPoint.h"
+#include "pcc_srvs/SetPoint.h"
+#include "pcc_srvs/GetPoint.h"
 #include <iostream>
 #include <math.h>
 #include "geometry_msgs/Pose2D.h"
@@ -20,8 +20,8 @@ struct comparator{
 };
 
 //custom Types
-typedef ccny_srvs::SetPoint SetPoint;
-typedef ccny_srvs::GetPoint GetPoint;
+typedef pcc_srvs::SetPoint SetPoint;
+typedef pcc_srvs::GetPoint GetPoint;
 typedef std::priority_queue<geometry_msgs::Pose2D,std::vector<geometry_msgs::Pose2D>, comparator> queue_t;
 
 

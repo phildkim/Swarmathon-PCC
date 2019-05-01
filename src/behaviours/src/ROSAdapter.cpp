@@ -26,21 +26,16 @@
 #include <apriltags_ros/AprilTagDetectionArray.h>
 #include <std_msgs/Float32MultiArray.h>
 #include "swarmie_msgs/Waypoint.h"
-#include "ccny_srvs/RobotType.h"
+#include "swarmie_msgs/Recruitment.h"
+#include "swarmie_msgs/Skid.h"
+#include "pcc_srvs/RobotType.h"
 
 // Include Controllers
 #include "LogicController.h"
 #include <vector>
-
 #include "Point.h"
 #include "Tag.h"
-//#include "CreateLog.h"
-
-// To handle shutdown signals so the node quits
-// properly in response to "rosnode kill"
-//#include <ros/ros.h>
 #include <signal.h>
-
 #include <exception> // For exception handling
 
 using namespace std;
@@ -121,8 +116,6 @@ Result result;
 
 std_msgs::String msg;
 
-
-geometry_msgs::Twist velocity;
 char host[128];
 string publishedName;
 char prev_state_machine[128];
@@ -150,6 +143,7 @@ ros::Subscriber virtualFenceSubscriber;
 // manualWaypointSubscriber listens on "/<robot>/waypoints/cmd" for
 // swarmie_msgs::Waypoint messages.
 ros::Subscriber manualWaypointSubscriber;
+ros::Subscriber recruitmentSubscriber;
 
 // Timers
 ros::Timer stateMachineTimer;
@@ -182,6 +176,7 @@ void behaviourStateMachine(const ros::TimerEvent&);
 void publishStatusTimerEventHandler(const ros::TimerEvent& event);
 void publishHeartBeatTimerEventHandler(const ros::TimerEvent& event);
 void sonarHandler(const sensor_msgs::Range::ConstPtr& sonarLeft, const sensor_msgs::Range::ConstPtr& sonarCenter, const sensor_msgs::Range::ConstPtr& sonarRight);
+void recruitmentHandler(const swarmie_msgs::Recruitment& msg);
 
 // Converts the time passed as reported by ROS (which takes Gazebo simulation rate into account) into milliseconds as an integer.
 long int getROSTimeInMilliSecs();
@@ -203,7 +198,7 @@ int main(int argc, char **argv) {
   // NoSignalHandler so we can catch SIGINT ourselves and shutdown the node
   ros::init(argc, argv, (publishedName + "_BEHAVIOUR"), ros::init_options::NoSigintHandler);
   ros::NodeHandle mNH;
-  id = mNH.serviceClient<ccny_srvs::RobotType>("getID");
+  id = mNH.serviceClient<pcc_srvs::RobotType>("getID");
   // Register the SIGINT event handler so the node can shutdown properly
   signal(SIGINT, sigintEventHandler);
   
@@ -217,13 +212,14 @@ int main(int argc, char **argv) {
   message_filters::Subscriber<sensor_msgs::Range> sonarLeftSubscriber(mNH, (publishedName + "/sonarLeft"), 10);
   message_filters::Subscriber<sensor_msgs::Range> sonarCenterSubscriber(mNH, (publishedName + "/sonarCenter"), 10);
   message_filters::Subscriber<sensor_msgs::Range> sonarRightSubscriber(mNH, (publishedName + "/sonarRight"), 10);
-  
+  recruitmentSubscriber = mNH.subscribe("/detectionLocations", 10, recruitmentHandler);  
+
   status_publisher = mNH.advertise<std_msgs::String>((publishedName + "/status"), 1, true);
   stateMachinePublish = mNH.advertise<std_msgs::String>((publishedName + "/state_machine"), 1, true);
   fingerAnglePublish = mNH.advertise<std_msgs::Float32>((publishedName + "/fingerAngle/cmd"), 1, true);
   wristAnglePublish = mNH.advertise<std_msgs::Float32>((publishedName + "/wristAngle/cmd"), 1, true);
   infoLogPublisher = mNH.advertise<std_msgs::String>("/infoLog", 1, true);
-  driveControlPublish = mNH.advertise<geometry_msgs::Twist>((publishedName + "/driveControl"), 10);
+  driveControlPublish = mNH.advertise<swarmie_msgs::Skid>((publishedName + "/driveControl"), 10);
   heartbeatPublisher = mNH.advertise<std_msgs::String>((publishedName + "/behaviour/heartbeat"), 1, true);
   waypointFeedbackPublisher = mNH.advertise<swarmie_msgs::Waypoint>((publishedName + "/waypoints"), 1, true);
 
@@ -284,7 +280,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
       // initialization has run
       initilized = true;
       logicController.initialize_all_services();
-      ccny_srvs::RobotType ms;
+      pcc_srvs::RobotType ms;
       id.call(ms);
       //TODO: this just sets center to 0 over and over and needs to change
       Point centerOdom;
@@ -429,11 +425,11 @@ void behaviourStateMachine(const ros::TimerEvent&)
 
 void sendDriveCommand(double left, double right)
 {
-  velocity.linear.x = left,
-      velocity.angular.z = right;
-  
+  swarmie_msgs::Skid skid_command;
+  skid_command.left  = left;
+  skid_command.right = right;  
   // publish the drive commands
-  driveControlPublish.publish(velocity);
+  driveControlPublish.publish(skid_command);
 }
 
 /*************************
@@ -635,6 +631,16 @@ void manualWaypointHandler(const swarmie_msgs::Waypoint& message) {
     logicController.RemoveManualWaypoint(message.id);
     break;
   }
+}
+
+void recruitmentHandler(const swarmie_msgs::Recruitment& msg)
+{
+   if(msg.name.data != publishedName) {
+      Point p;
+      p.x = msg.x;
+      p.y = msg.y;
+      logicController.gotRecruitmentMessage(p);
+   }
 }
 
 void sigintEventHandler(int sig) {

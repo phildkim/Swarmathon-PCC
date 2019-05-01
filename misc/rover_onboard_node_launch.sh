@@ -1,4 +1,16 @@
 #!/bin/bash
+OPTSTRING=`getopt -l frame-rate: -- $0 $@`
+frame_rate=10
+eval set -- "$OPTSTRING"
+while true
+do
+    case "$1" in
+        --frame-rate ) frame_rate="$2"; shift 2 ;;
+        -- ) shift ; break ;;
+    esac
+done
+
+
 echo "running pkill on old rosnodes"
 pkill usb_cam_node
 pkill behaviours
@@ -17,9 +29,9 @@ export GAZEBO_PLUGIN_PATH="../build/gazebo_plugins"
 
 #Point to ROS master on the network
 echo "point to ROS master on the network"
-if [ -z "$1" ]
+if [ -z "$2" ]
 then
-    echo "Error: ROS_MASTER_URI hostname was not provided"
+    echo "Usage: ./rover_onboard_node_launch.sh master_hostname calibration_location"
     exit 1
 else
     export ROS_MASTER_URI=http://$1:11311
@@ -52,6 +64,14 @@ findDevicePath() {
 
 
 #Startup ROS packages/processes
+echo "Loading calibration data and swarmie_control sketch"
+./load_swarmie_control_sketch.sh $2
+            
+if [ "$1" == "localhost" ]
+then
+    roslaunch rosbridge_server rosbridge_websocket.launch &
+fi
+
 echo "rosrun tf static_transform_publisher"
 nohup > logs/$HOSTNAME"_transform_log.txt" rosrun tf static_transform_publisher __name:=$HOSTNAME\_BASE2CAM 0.12 -0.03 0.195 -1.57 0 -2.22 /$HOSTNAME/base_link /$HOSTNAME/camera_link 100 &
 echo "rosrun video_stream_opencv"
@@ -96,7 +116,8 @@ rosparam set /$HOSTNAME\_ODOM/odom0 /$HOSTNAME/odom
 rosparam set /$HOSTNAME\_ODOM/imu0 /$HOSTNAME/imu
 rosparam set /$HOSTNAME\_ODOM/odom0_config [false,false,false,false,false,false,true,false,false,false,false,true,false,false,false]
 rosparam set /$HOSTNAME\_ODOM/imu0_config [false,false,false,false,false,true,false,false,false,false,false,true,true,false,false]
-nohup > logs/$HOSTNAME"_odom_EKF_log.txt" rosrun robot_localization ekf_localization_node _two_d_mode:=true _world_frame:=odom _frequency:=10 __name:=$HOSTNAME\_ODOM /odometry/filtered:=/$HOSTNAME/odom/filtered &
+
+nohup > logs/$HOSTNAME"_odom_EKF_log.txt" rosrun robot_localization ekf_localization_node _two_d_mode:=true _world_frame:=odom _base_link_frame_output:=$HOSTNAME/base_link _frequency:=10 __name:=$HOSTNAME\_ODOM /odometry/filtered:=/$HOSTNAME/odom/filtered &
 
 rosparam set /$HOSTNAME\_MAP/odom0 /$HOSTNAME/odom/navsat
 rosparam set /$HOSTNAME\_MAP/odom1 /$HOSTNAME/odom/filtered
@@ -138,8 +159,23 @@ rosparam set $HOSTNAME\_MAP/process_noise_covariance "[0.005, 0, 0, 0, 0, 0, 0, 
                                                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0,  /
                                                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1]"
 
-nohup > logs/$HOSTNAME"_map_EKF_log.txt" rosrun robot_localization ekf_localization_node _two_d_mode:=true _world_frame:=map _frequency:=10 __name:=$HOSTNAME\_MAP /odometry/filtered:=/$HOSTNAME/odom/ekf &
+nohup > logs/$HOSTNAME"_map_EKF_log.txt" rosrun robot_localization ekf_localization_node _two_d_mode:=true _world_frame:=map _base_link_frame_output:=$HOSTNAME/base_link _frequency:=10 __name:=$HOSTNAME\_MAP /odometry/filtered:=/$HOSTNAME/odom/ekf &
 
+throttle()
+{
+    nohup >/dev/null rosrun topic_tools throttle messages $1 1.0 __name:=$2 &
+}
+            
+nohup >/dev/null rosrun topic_tools throttle messages /$HOSTNAME/targets/image/compressed $frame_rate /$HOSTNAME/targets/image_throttle/compressed __name:=${HOSTNAME}_throttle_image & 
+            
+throttle /$HOSTNAME/sonarLeft ${HOSTNAME}_throttle_sonarLeft
+throttle /$HOSTNAME/sonarRight ${HOSTNAME}_throttle_sonarRight
+throttle /$HOSTNAME/sonarCenter ${HOSTNAME}_throttle_sonarCenter
+throttle /$HOSTNAME/odom/navsat ${HOSTNAME}_throttle_navsat
+throttle /$HOSTNAME/odom/filtered ${HOSTNAME}_throttle_odom_filered
+throttle /$HOSTNAME/odom/ekf ${HOSTNAME}_throttle_odom_ekf
+throttle /$HOSTNAME/navsol ${HOSTNAME}_throttle_navsol
+throttle /$HOSTNAME/imu ${HOSTNAME}_throttle_imu
 
 #Wait for user input to terminate processes
 while true; do

@@ -8,18 +8,14 @@
 #include "DriveController.h"
 #include "RangeController.h"
 #include "ManualWaypointController.h"
-
 #include <vector>
 #include <queue>
-
 using namespace std;
 
 struct PrioritizedController {
   int priority = -1;
   Controller* controller = nullptr;
-
   PrioritizedController(int pri, Controller* cntrl) : priority(pri), controller(cntrl) {}
-
   inline bool operator <(const PrioritizedController& other) const {
     return priority < other.priority;
   }
@@ -30,7 +26,6 @@ class LogicController : virtual Controller
 public:
   LogicController();
   ~LogicController();
-
   void Reset() override;
   Result DoWork() override;
   void UpdateData();
@@ -45,7 +40,7 @@ public:
   void SetMapVelocityData(float linearVelocity, float angularVelocity);
   void SetCenterLocationOdom(Point centerLocationOdom);
   void SetCenterLocationMap(Point centerLocationMap);
-
+  void gotRecruitmentMessage(Point p);
   
   // Passthrough for providing new waypoints to the
   // ManualWaypointController.

@@ -1,15 +1,16 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Pose2D.h>
 #include <queue>
-#include "ccny_srvs/GetPickup.h"
-#include "ccny_srvs/SetPickup.h"
+#include "pcc_srvs/GetPickup.h"
+#include "pcc_srvs/SetPickup.h"
 #include <math.h>
 std::list<geometry_msgs::Pose2D> pickuplist;
 
-typedef ccny_srvs::SetPickup setpickup;
-typedef ccny_srvs::GetPickup getpickup;
+typedef pcc_srvs::SetPickup setpickup;
+typedef pcc_srvs::GetPickup getpickup;
 
 geometry_msgs::Pose2D comparison_point;
+
 struct Comparator {
     bool operator ()(const geometry_msgs::Pose2D a, const geometry_msgs::Pose2D b){
     double dist_a=hypot(a.x-comparison_point.x,a.y-comparison_point.y);
@@ -19,51 +20,38 @@ struct Comparator {
 };
 
 bool setpoints(geometry_msgs::Pose2D msg){
-
     pickuplist.push_back(msg);
     return true;
-
 }
 
 bool setCords(setpickup::Request& req, setpickup::Response& res){
-
-res.success = setpoints(req.point);
-return true;
-
+    res.success = setpoints(req.point);
+    return true;
 }
+
 bool getCords(getpickup::Request& req,getpickup::Response& res){
-comparison_point=req.point;
-
-if(req.pickup && !pickuplist.empty()){
-    pickuplist.sort(Comparator());
-    res.point=pickuplist.front();
-    pickuplist.pop_front();
-    res.empty=false;
-}else{
-    res.empty= true;
-
+    comparison_point=req.point;
+    if(req.pickup && !pickuplist.empty()){
+        pickuplist.sort(Comparator());
+        res.point=pickuplist.front();
+        pickuplist.pop_front();
+        res.empty=false;
+    }else{
+        res.empty= true;
+    }   
+    return true;
 }
 
-return true;
-
-}
 bool getSize(getpickup::Request& req,getpickup::Response& res){
     res.size=pickuplist.size();
     return true;
 }
 
-
-
 int main(int argc, char **argv){
-        ros::init(argc, argv ,"pickup_server");
+    ros::init(argc, argv ,"pickup_server");
 	ros::NodeHandle n;
-	
-        ros::ServiceServer service1 =n.advertiseService("pickup_setter",setCords);
-        ros::ServiceServer service2 =n.advertiseService("pickup_getter",getCords);
-        ros::ServiceServer service3 =n.advertiseService("list_size",getSize);
-
+    ros::ServiceServer service1 =n.advertiseService("pickup_setter",setCords);
+    ros::ServiceServer service2 =n.advertiseService("pickup_getter",getCords);
+    ros::ServiceServer service3 =n.advertiseService("list_size",getSize);
 	ros::spin();
-
-
-
 }

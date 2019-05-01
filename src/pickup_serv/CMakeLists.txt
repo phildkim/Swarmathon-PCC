@@ -9,7 +9,7 @@ project(pickup_serv)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
-  ccny_srvs
+  pcc_srvs
   message_generation
   message_runtime
   roscpp
@@ -117,7 +117,7 @@ catkin_package(
 #  LIBRARIES pickup_serv
 #  CATKIN_DEPENDS roscpp rospy rostopic std_msgs std_srvs
 #  DEPENDS system_lib
-   CATKIN_DEPENDS roscpp ccny_srvs rospy std_msgs geometry_msgs
+   CATKIN_DEPENDS roscpp pcc_srvs rospy std_msgs geometry_msgs
 )
 
 ###########
@@ -202,13 +202,6 @@ target_link_libraries(robotid
   ${catkin_LIBRARIES}
 )
 
-add_executable(pickupclient src/pickup_client.cpp)
-add_dependencies(pickupclient ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Specify libraries to link a library or executable target against
-target_link_libraries(pickupclient
-  ${catkin_LIBRARIES}
-)
 
 #############
 ## Testing ##

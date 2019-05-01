@@ -419,6 +419,11 @@ void LogicController::setVirtualFenceOn( RangeShape* range )
   range_controller.setEnabled(true);
 }
 
+void LogicController::gotRecruitmentMessage(Point p)
+{
+   searchController.setRecruitmentLocation(p);
+}
+
 void LogicController::setVirtualFenceOff()
 {
   range_controller.setEnabled(false);

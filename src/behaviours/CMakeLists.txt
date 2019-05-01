@@ -13,11 +13,11 @@ find_package(catkin REQUIRED COMPONENTS
   apriltags_ros
   swarmie_msgs
   rosconsole
-  ccny_srvs
+  pcc_srvs
   )
 
 catkin_package(
-  CATKIN_DEPENDS ccny_srvs geometry_msgs rosconsole swarmie_msgs roscpp sensor_msgs std_msgs random_numbers tf apriltags_ros
+  CATKIN_DEPENDS pcc_srvs geometry_msgs rosconsole swarmie_msgs roscpp sensor_msgs std_msgs random_numbers tf apriltags_ros
 )
 
 include_directories(
@@ -37,6 +37,7 @@ add_executable(
   src/RangeController.cpp
   src/LogicController.cpp
   src/ManualWaypointController.cpp
+  src/PositionPublisher.cpp
 )
 
 add_dependencies(behaviours ${catkin_EXPORTED_TARGETS})

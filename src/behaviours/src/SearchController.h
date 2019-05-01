@@ -32,6 +32,7 @@ public:
   void SetCurrentLocation(Point currentLocation);
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
+  void setRecruitmentLocation(Point p);
   void setType ();
   void init_services(){
       initialize_services();

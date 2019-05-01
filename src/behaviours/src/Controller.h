@@ -3,24 +3,24 @@
 
 
 #include "Result.h"
-#include "ccny_srvs/GetPickup.h"
-#include "ccny_srvs/SetPickup.h"
-#include "ccny_srvs/GetStatus.h"
-#include "ccny_srvs/SetStatus.h"
-#include "ccny_srvs/GetStatistic.h"
-#include "ccny_srvs/SetStatistic.h"
-#include "ccny_srvs/GetMVPoint.h"
-#include "ccny_srvs/RobotType.h"
+#include "pcc_srvs/GetPickup.h"
+#include "pcc_srvs/SetPickup.h"
+#include "pcc_srvs/GetStatus.h"
+#include "pcc_srvs/SetStatus.h"
+#include "pcc_srvs/GetStatistic.h"
+#include "pcc_srvs/SetStatistic.h"
+#include "pcc_srvs/GetMVPoint.h"
+#include "pcc_srvs/RobotType.h"
 #include <ros/ros.h>
 
-typedef ccny_srvs::GetStatus GStatus;
-typedef ccny_srvs::SetStatus SStatus;
-typedef ccny_srvs::SetPickup SPickup;
-typedef ccny_srvs::GetPickup GPickup;
-typedef ccny_srvs::GetStatistic GStatistic;
-typedef ccny_srvs::SetStatistic SStatistic;
-typedef ccny_srvs::GetMVPoint GMVP;
-typedef ccny_srvs::RobotType GRobnum;
+typedef pcc_srvs::GetStatus GStatus;
+typedef pcc_srvs::SetStatus SStatus;
+typedef pcc_srvs::SetPickup SPickup;
+typedef pcc_srvs::GetPickup GPickup;
+typedef pcc_srvs::GetStatistic GStatistic;
+typedef pcc_srvs::SetStatistic SStatistic;
+typedef pcc_srvs::GetMVPoint GMVP;
+typedef pcc_srvs::RobotType GRobnum;
 
 /*
  * This class is meant to serve as a template for all Controllers,

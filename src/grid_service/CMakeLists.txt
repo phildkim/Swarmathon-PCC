@@ -8,7 +8,7 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  ccny_srvs
+  pcc_srvs
   roscpp
   rospy
   std_msgs
@@ -106,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES grid_service
-  CATKIN_DEPENDS ccny_srvs roscpp rospy std_msgs
+  CATKIN_DEPENDS pcc_srvs roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 
