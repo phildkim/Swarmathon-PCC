@@ -1,20 +1,13 @@
 #include <utility>
-
 #include "GridManager.h"
 #include "Grid.cpp"
 
 /* Public Methods */
-GridManager::GridManager() : GridManager(150)
-{ /* Delegating Constructor */ }
+GridManager::GridManager() : GridManager(150){}
 
-GridManager::GridManager(uint8_t size) :
-	grid(size)
-{ }
+GridManager::GridManager(uint8_t size):grid(size){}
 
-GridManager::~GridManager() {
-	// Grid contains either unique_ptr-managed objects or stack-allocated
-	//   variables. Destructor is left empty as a result.
-}
+GridManager::~GridManager() {}
 
 ros::ServiceServer GridManager::addressGetter() {
 	return node.advertiseService("get_cell_address", &GridManager::getAddress, this);
@@ -61,7 +54,6 @@ ros::ServiceServer GridManager::registerStatusSetter(const std::string &name, ui
 	);
 }
 
-
 ros::Timer GridManager::registerGridOperation(float duration, const std::string &name, uint8_t stride) {
 	return node.createTimer(
 		ros::Duration(duration),
@@ -88,7 +80,6 @@ float GridManager::to_float(int8_t input) {
 /* Private Methods */
 bool GridManager::getAddress(get_address_request_t& req, get_address_response_t& res) {
 	res.address = reinterpret_cast<uint64_t>(&(*grid.getCell(req.x, req.y)));
-
 	return true;
 }
 

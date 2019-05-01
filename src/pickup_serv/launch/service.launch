@@ -1,6 +1,6 @@
 <launch>
 	<node name="pickup_service" pkg="pickup_serv" type="pickupserver"/>
-	<node name="Robot_identifier" pkg="pickup_serv" type="robotid"/>
-	<node name="Grid" pkg="grid_service" type="grid_service_node"/>
+	<node name="id_service" pkg="pickup_serv" type="robotid"/>
+	<node name="map_service" pkg="grid_service" type="grid_service_node"/>
 
 </launch>

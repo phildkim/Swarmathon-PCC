@@ -4,7 +4,6 @@
 #include <sys/mman.h>
 #include <new>
 #include <unistd.h>
-
 #include "AllocatedCell.cpp"
 #include "MappedCell.cpp"
 

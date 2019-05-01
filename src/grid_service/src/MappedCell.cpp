@@ -3,7 +3,6 @@
 #include <sys/mman.h>
 #include <new>
 #include <unistd.h>
-
 #include "MappedCell.h"
 
 // Static Class Variables
@@ -12,12 +11,9 @@ const uint8_t MappedCell::STATISTIC_REGISTER_OFFSET = 4;
 
 // Public Member Functions
 MappedCell::MappedCell(uint8_t * addr) : 
-	cell_base_addr(addr)
-{ }
+	cell_base_addr(addr){}
 
-MappedCell::~MappedCell() {
-
-}
+MappedCell::~MappedCell() {}
 
 uint8_t * const MappedCell::getCellAddress() {
 	return this->cell_base_addr;
