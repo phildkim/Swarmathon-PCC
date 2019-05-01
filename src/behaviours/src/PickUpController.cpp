@@ -415,3 +415,4 @@ void PickUpController::SetCurrentTimeInMilliSecs( long int time )
 void PickUpController::SetCurrentLocation(Point current){
     currentLocation= current;
 }
+

@@ -1,7 +1,6 @@
 #ifndef DROPOFCONTROLLER_H
 #define DROPOFCONTROLLER_H
 #define HEADERFILE_H
-
 #include "Controller.h"
 #include "Tag.h"
 #include <math.h>
@@ -10,11 +9,8 @@
 class DropOffController : virtual Controller
 {
 public:
-
-
   DropOffController();
   ~DropOffController();
-
   void Reset() override;
   Result DoWork() override;
   Result (DropOffController::*Work)()= &DropOffController::SearchWork;
@@ -43,11 +39,8 @@ public:
   }
 
 private:
-
   void ProcessData();
-
   //Constants
-
   const float cameraOffsetCorrection = 0.020; //meters
   const float centeringTurnRate = 0.15; //radians
   const int centerTagThreshold = 8;
@@ -58,10 +51,7 @@ private:
   const float searchVelocity = 0.15; //in meters per second
   const float dropDelay = 0.5; //delay in seconds for dropOff
 
-
-
   //Instance Variables
-
   /*
      *  Timers and Accumulators
      */

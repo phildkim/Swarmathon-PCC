@@ -4,7 +4,6 @@
 
 
 DropOffController::DropOffController() {
-
   reachedCollectionPoint = false;
   result.type = behavior;
   result.b = wait;
@@ -16,26 +15,22 @@ DropOffController::DropOffController() {
   centerApproach = false;
   seenEnoughCenterTags = false;
   prevCount = 0;
-
   countLeft = 0;
   countRight = 0;
   returnpoint= false;
-
   isPrecisionDriving = false;
   startWaypoint = false;
   timerTimeElapsed = -1;
 
 }
 
-DropOffController::~DropOffController() {
-
-}
+DropOffController::~DropOffController() {}
 
 Result DropOffController::DoWork(){
-return (this->*DropOffController::Work)();
+    return (this->*DropOffController::Work)();
 }
-Result DropOffController::SearchWork(){
 
+Result DropOffController::SearchWork(){
     if(!initial_test && !dropset){
         if(hypot(currentLocation.x,currentLocation.y)<3.1){
         PickupWork();
@@ -45,9 +40,7 @@ Result DropOffController::SearchWork(){
         }
     }
     int count = countLeft + countRight;
-
     if(timerTimeElapsed > -1) {
-
       long int elapsed = current_time - returnTimer;
       timerTimeElapsed = elapsed/1e3; // Convert from milliseconds to seconds
     }else{
@@ -62,14 +55,10 @@ Result DropOffController::SearchWork(){
 
     //if we are in the routine for exiting the circle once we have dropped a block off and reseting all our flags
     //to resart our search.
-    if(reachedCollectionPoint)
-    {
-      cout << "2" << endl;
-      if (timerTimeElapsed >= 3)
-      {
+    if(reachedCollectionPoint){
+      if (timerTimeElapsed >= 3){
         //ROS_WARN("%s","Timer is greater than 5 seconds");
-        if (finalInterrupt)
-        {
+        if (finalInterrupt){
           result.type = behavior;
           result.b = nextProcess;
           result.reset = true;
@@ -79,9 +68,7 @@ Result DropOffController::SearchWork(){
           set_pickup.call(pickupSet);
           reset_msgs();
           return result;
-        }
-        else
-        {
+        }else{
           finalInterrupt = true;
           seenEnoughCenterTags = true;
           first_center=false;
@@ -207,15 +194,14 @@ Result DropOffController::PickupWork(){
         result.pd.cmdVel = -1;
         result.pd.cmdAngularError = 0.0;
       }
-
       return result;
     }
     if(!returnpoint){
-    double angle= atan(currentLocation.x/currentLocation.y);
-    dropOffLocation.x=0;
-    dropOffLocation.y=0;
-    dropOffLocation.theta=angle;
-    returnpoint=true;
+        double angle= atan(currentLocation.x/currentLocation.y);
+        dropOffLocation.x=0;
+        dropOffLocation.y=0;
+        dropOffLocation.theta=angle;
+        returnpoint=true;
     }
 
     double distanceToCenter = hypot(0 - this->currentLocation.x, 0 - this->currentLocation.y)-0.02;
@@ -232,11 +218,8 @@ Result DropOffController::PickupWork(){
       result.wpts.waypoints.push_back(dropOffLocation);
       startWaypoint = false;
       isPrecisionDriving = false;
-
       timerTimeElapsed = 0;
-
       return result;
-
     }else if(distanceToCenter <0.65){
         result.type=behavior;
         result.b=nextProcess;
@@ -245,9 +228,9 @@ Result DropOffController::PickupWork(){
         returnTimer = current_time;
         return result;
     }else{
-    result.type=behavior;
-    result.b=prevProcess;
-    dropset=false;
+        result.type=behavior;
+        result.b=prevProcess;
+        dropset=false;
     }
     return result;
 }
@@ -265,11 +248,8 @@ void DropOffController::Reset() {
   spinSizeIncrease = 0;
   prevCount = 0;
   timerTimeElapsed = -1;
-
   countLeft = 0;
   countRight = 0;
-
-
   //reset flags
   reachedCollectionPoint = false;
   seenEnoughCenterTags = false;
@@ -283,26 +263,20 @@ void DropOffController::Reset() {
   returnpoint = false;
   initial_test=false;
   cout << "6" << endl;
-
 }
 
 void DropOffController::SetTargetData(vector<Tag> tags) {
   countRight = 0;
   countLeft = 0;
-
   if(targetHeld) {
     // if a target is detected and we are looking for center tags
     if (tags.size() > 0 && !reachedCollectionPoint) {
-
       // this loop is to get the number of center tags
       for (int i = 0; i < tags.size(); i++) {
         if (tags[i].getID() == 256) {
-
-
           // checks if tag is on the right or left side of the image
           if (tags[i].getPositionX() + cameraOffsetCorrection > 0) {
             countRight++;
-
           } else {
             countLeft++;
           }
@@ -310,7 +284,6 @@ void DropOffController::SetTargetData(vector<Tag> tags) {
       }
     }
   }
-
 }
 
 void DropOffController::ProcessData() {
@@ -338,16 +311,13 @@ bool DropOffController::ShouldInterrupt() {
 }
 
 bool DropOffController::HasWork() {
-
   if(timerTimeElapsed > -1) {
     long int elapsed = current_time - returnTimer;
     timerTimeElapsed = elapsed/1e3; // Convert from milliseconds to seconds
   }
-
   if (circularCenterSearching && timerTimeElapsed < 2 && !isPrecisionDriving) {
     return false;
   }
-
   return ((startWaypoint || isPrecisionDriving));
 }
 
@@ -362,6 +332,7 @@ void DropOffController::SetCenterLocation(Point center) {
 void DropOffController::SetCurrentLocation(Point current) {
   currentLocation = current;
 }
+
 void DropOffController::SetDropoffLocation(Point dropoff){
     dropOffLocation.x = dropoff.x/2;
     dropOffLocation.y = dropoff.y/2;
@@ -375,10 +346,10 @@ void DropOffController::SetBlockBlockingUltrasound(bool blockBlock) {
   targetHeld = targetHeld || blockBlock;
 }
 
-void DropOffController::SetCurrentTimeInMilliSecs( long int time )
-{
+void DropOffController::SetCurrentTimeInMilliSecs( long int time ){
   current_time = time;
 }
+
 void DropOffController::changeType(){
     if(Work==&DropOffController::PickupWork){
         Work=&DropOffController::SearchWork;
@@ -386,6 +357,7 @@ void DropOffController::changeType(){
         Work=&DropOffController::PickupWork;
     }
 }
+
 string DropOffController::getdata(){
     string msg="";
     msg+="\ntargetHeld: ";

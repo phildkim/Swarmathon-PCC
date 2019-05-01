@@ -1,7 +1,5 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
-
-
 #include "Result.h"
 #include "pcc_srvs/GetPickup.h"
 #include "pcc_srvs/SetPickup.h"
@@ -12,7 +10,6 @@
 #include "pcc_srvs/GetMVPoint.h"
 #include "pcc_srvs/RobotType.h"
 #include <ros/ros.h>
-
 typedef pcc_srvs::GetStatus GStatus;
 typedef pcc_srvs::SetStatus SStatus;
 typedef pcc_srvs::SetPickup SPickup;
@@ -29,36 +26,27 @@ typedef pcc_srvs::RobotType GRobnum;
  * It also exists so that Controllers have a generic interface to
  * use for processing interrupts in LogicController.
  */
-
 class Controller {
 
-
-
 public:
-  Controller() {
-  }
+  Controller() {}
   ~Controller() {}
-
   //Resets internal state to defaults
   virtual void Reset() = 0;
-
   //Determines what action should be taken based on current
   //internal state and data
   virtual Result DoWork() = 0;
-
   //Returns whether or not an interrupt must be thrown
   virtual bool ShouldInterrupt() = 0;
-
   //Returns whether or not a controller should be polled for a Result
   virtual bool HasWork() = 0;
   //to do check this enum type
-  virtual string toString()=0;
+  virtual string toString() = 0;
 
 protected:
   //Looks at external data and determines if an interrupt must be thrown
   //or if the controller should be polled
   virtual void ProcessData() = 0;
-
 
   enum change{
          OBSTACLE=1,
@@ -109,79 +97,70 @@ protected:
     //Has issues initializing with the initialization of
     //the controller class since ros::init was being
     //called after and not before
-
     void initialize_services(){
         ros::NodeHandle nm;
         //Stats Setters
         update_traversal_cost = nm.serviceClient<SStatistic>("update_traversal_cost");
-        update_desirability_index =nm.serviceClient<SStatistic>("update_desirability_index");
+        update_desirability_index = nm.serviceClient<SStatistic>("update_desirability_index");
 
         //Stats Getter
         get_traversal_cost = nm.serviceClient<GStatistic>("get_traversal_cost");
-        get_desirability_index=nm.serviceClient<GStatistic>("get_desirability_index");
-
-
+        get_desirability_index = nm.serviceClient<GStatistic>("get_desirability_index");
 
         // Status Setters
-        set_obstacle=nm.serviceClient<SStatus>("set_occupied_obstacle");
-        set_robot= nm.serviceClient<SStatus>("set_occupied_rover");
-        set_route=nm.serviceClient<SStatus>("set_occupied_planned_route");
+        set_obstacle = nm.serviceClient<SStatus>("set_occupied_obstacle");
+        set_robot = nm.serviceClient<SStatus>("set_occupied_rover");
+        set_route = nm.serviceClient<SStatus>("set_occupied_planned_route");
         set_sample = nm.serviceClient <SStatus>("mark_samples");
         set_searched = nm.serviceClient<SStatus>("mark_searched");
-        flag_new_occupancy_data=nm.serviceClient<SStatus>("flag_new_occupancy_data");
+        flag_new_occupancy_data = nm.serviceClient<SStatus>("flag_new_occupancy_data");
         update_num_samples = nm.serviceClient<SStatus>("update_num_of_samples");
 
         // Status Getters
-        is_any=nm.serviceClient<GStatus>("is_occupied_any");
-        is_obstacle=nm.serviceClient<GStatus>("is_occupied_obstacle");
-        is_robot=nm.serviceClient<GStatus>("is_occupied_rover");
-        is_route=nm.serviceClient<GStatus>("is_occupied_planned_route");
-        has_sample=nm.serviceClient<GStatus>("has_samples");
-        has_searched=nm.serviceClient<GStatus>("has_been_searched");
-        has_updated=nm.serviceClient<GStatus>("has_recently_updated");
+        is_any = nm.serviceClient<GStatus>("is_occupied_any");
+        is_obstacle = nm.serviceClient<GStatus>("is_occupied_obstacle");
+        is_robot = nm.serviceClient<GStatus>("is_occupied_rover");
+        is_route = nm.serviceClient<GStatus>("is_occupied_planned_route");
+        has_sample = nm.serviceClient<GStatus>("has_samples");
+        has_searched = nm.serviceClient<GStatus>("has_been_searched");
+        has_updated = nm.serviceClient<GStatus>("has_recently_updated");
         has_new_occupancy_data = nm.serviceClient<GStatus>("has_new_occupancy_data");
         get_num_samples = nm.serviceClient<GStatus>("get_num_of_samples");
 
-
         //Pickup List
-        get_pickup=nm.serviceClient<GPickup>("pickup_getter");
-        set_pickup=nm.serviceClient<SPickup>("pickup_setter");
+        get_pickup = nm.serviceClient<GPickup>("pickup_getter");
+        set_pickup = nm.serviceClient<SPickup>("pickup_setter");
         get_pickuplist_size = nm.serviceClient<GPickup>("list_size");
 
         //MVP
-        get_MVP=nm.serviceClient<GMVP>("most_valuable_point");
+        get_MVP = nm.serviceClient<GMVP>("most_valuable_point");
 
         //number of robots
-        get_rob_num= nm.serviceClient<GRobnum>("num_of_robots");
+        get_rob_num = nm.serviceClient<GRobnum>("num_of_robots");
     }
 
 
     //Reset all messages to default values.
     void reset_msgs(){
-    statisticSet.request.x=0;
-    statisticSet.request.y=0;
-    statisticSet.request.data=0;
-
-    statisticGet.request.x=0;
-    statisticGet.request.y=0;
-
-
-    statusSet.request.x=0;
-    statusSet.request.y=0;
-    statusSet.request.data=change::ROVER;
-
-    statusGet.request.x=0;
-    statusGet.request.y=0;
-
-    pickupGet.request.pickup = false;
-    pickupGet.request.point.x=0;
-    pickupGet.request.point.y=0;
-
-    pickupSet.request.point.x=0;
-    pickupSet.request.point.y=0;
-
+        // statistics
+        statisticSet.request.x = 0;
+        statisticSet.request.y = 0;
+        statisticSet.request.data = 0;
+        statisticGet.request.x = 0;
+        statisticGet.request.y = 0;
+        // status
+        statusSet.request.x = 0;
+        statusSet.request.y = 0;
+        statusSet.request.data = change::ROVER;
+        statusGet.request.x = 0;
+        statusGet.request.y = 0;
+        // pickup
+        pickupGet.request.pickup = false;
+        pickupGet.request.point.x = 0;
+        pickupGet.request.point.y = 0;
+        pickupSet.request.point.x = 0;
+        pickupSet.request.point.y = 0;
     }
-
 };
 
 #endif // CONTROLLER_H

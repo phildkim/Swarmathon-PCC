@@ -64,11 +64,9 @@ private:
 random_numbers::RandomNumberGenerator* rng;
 
 // Create logic controller
-
 LogicController logicController;
 
 void humanTime();
-
 // Behaviours Logic Functions
 void sendDriveCommand(double linearVel, double angularVel);
 void openFingers(); // Open fingers to 90 degrees
@@ -77,16 +75,13 @@ void raiseWrist();  // Return wrist back to 0 degrees
 void lowerWrist();  // Lower wrist to 50 degrees
 void resultHandler();
 
-
 Point updateCenterLocation();
 void transformMapCentertoOdom();
-
 
 // Numeric Variables for rover positioning
 geometry_msgs::Pose2D currentLocation;
 geometry_msgs::Pose2D currentLocationMap;
 geometry_msgs::Pose2D currentLocationAverage;
-
 geometry_msgs::Pose2D centerLocation;
 geometry_msgs::Pose2D centerLocationMap;
 geometry_msgs::Pose2D centerLocationOdom;
@@ -100,26 +95,22 @@ const float waypointTolerance = 0.1; //10 cm tolerance.
 
 // used for calling code once but not in main
 bool initilized = false;
-
 float linearVelocity = 0;
 float angularVelocity = 0;
-
 float prevWrist = 0;
 float prevFinger = 0;
 long int startTime = 0;
 float minutesTime = 0;
 float hoursTime = 0;
-
 float drift_tolerance = 0.5; // meters
 
 Result result;
-
 std_msgs::String msg;
-
 char host[128];
 string publishedName;
 char prev_state_machine[128];
 
+// Client service
 ros::ServiceClient id;
 // Publishers
 ros::Publisher stateMachinePublish;
@@ -132,7 +123,6 @@ ros::Publisher heartbeatPublisher;
 // Publishes swarmie_msgs::Waypoint messages on "/<robot>/waypooints"
 // to indicate when waypoints have been reached.
 ros::Publisher waypointFeedbackPublisher;
-
 // Subscribers
 ros::Subscriber joySubscriber;
 ros::Subscriber modeSubscriber; 
@@ -144,26 +134,20 @@ ros::Subscriber virtualFenceSubscriber;
 // swarmie_msgs::Waypoint messages.
 ros::Subscriber manualWaypointSubscriber;
 ros::Subscriber recruitmentSubscriber;
-
 // Timers
 ros::Timer stateMachineTimer;
 ros::Timer publish_status_timer;
 ros::Timer publish_heartbeat_timer;
-
 // records time for delays in sequanced actions, 1 second resolution.
 time_t timerStartTime;
-
 // An initial delay to allow the rover to gather enough position data to 
 // average its location.
 unsigned int startDelayInSeconds = 30;
 float timerTimeElapsed = 0;
-
 //Transforms
 tf::TransformListener *tfListener;
-
 // OS Signal Handler
 void sigintEventHandler(int signal);
-
 //Callback handlers
 void joyCmdHandler(const sensor_msgs::Joy::ConstPtr& message);
 void modeHandler(const std_msgs::UInt8::ConstPtr& message);
@@ -177,15 +161,12 @@ void publishStatusTimerEventHandler(const ros::TimerEvent& event);
 void publishHeartBeatTimerEventHandler(const ros::TimerEvent& event);
 void sonarHandler(const sensor_msgs::Range::ConstPtr& sonarLeft, const sensor_msgs::Range::ConstPtr& sonarCenter, const sensor_msgs::Range::ConstPtr& sonarRight);
 void recruitmentHandler(const swarmie_msgs::Recruitment& msg);
-
 // Converts the time passed as reported by ROS (which takes Gazebo simulation rate into account) into milliseconds as an integer.
 long int getROSTimeInMilliSecs();
 
-int main(int argc, char **argv) {
-  
+int main(int argc, char **argv) { 
   gethostname(host, sizeof (host));
   string hostname(host);
-  
   if (argc >= 2) {
     publishedName = argv[1];
     cout << "Welcome to the world of tomorrow " << publishedName
@@ -222,17 +203,13 @@ int main(int argc, char **argv) {
   driveControlPublish = mNH.advertise<swarmie_msgs::Skid>((publishedName + "/driveControl"), 10);
   heartbeatPublisher = mNH.advertise<std_msgs::String>((publishedName + "/behaviour/heartbeat"), 1, true);
   waypointFeedbackPublisher = mNH.advertise<swarmie_msgs::Waypoint>((publishedName + "/waypoints"), 1, true);
-
   publish_status_timer = mNH.createTimer(ros::Duration(status_publish_interval), publishStatusTimerEventHandler);
   stateMachineTimer = mNH.createTimer(ros::Duration(behaviourLoopTimeStep), behaviourStateMachine);
-  
   publish_heartbeat_timer = mNH.createTimer(ros::Duration(heartbeat_publish_interval), publishHeartBeatTimerEventHandler);
   
   typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Range, sensor_msgs::Range, sensor_msgs::Range> sonarSyncPolicy;
-  
   message_filters::Synchronizer<sonarSyncPolicy> sonarSync(sonarSyncPolicy(10), sonarLeftSubscriber, sonarCenterSubscriber, sonarRightSubscriber);
   sonarSync.registerCallback(boost::bind(&sonarHandler, _1, _2, _3));
-  
   tfListener = new tf::TransformListener();
   std_msgs::String msg;
   msg.data = "Log Started";
@@ -263,20 +240,15 @@ int main(int argc, char **argv) {
 // controllers in the abridge package.
 void behaviourStateMachine(const ros::TimerEvent&)
 {
-
   std_msgs::String stateMachineMsg;
-  
   // time since timerStartTime was set to current time
   timerTimeElapsed = time(0) - timerStartTime;
-  
   // init code goes here. (code that runs only once at start of
   // auto mode but wont work in main goes here)
   if (!initilized)
   {
-
     if (timerTimeElapsed > startDelayInSeconds)
     {
-
       // initialization has run
       initilized = true;
       logicController.initialize_all_services();
@@ -288,23 +260,17 @@ void behaviourStateMachine(const ros::TimerEvent&)
       centerOdom.y = 0;//1.3 * sin(currentLocation.theta);
       centerOdom.theta = centerLocation.theta;
       logicController.SetCenterLocationOdom(centerOdom);
-      
       Point centerMap;
       centerMap.x =0;// currentLocationMap.x + (1.3 * cos(currentLocationMap.theta));
       centerMap.y =0;// currentLocationMap.y + (1.3 * sin(currentLocationMap.theta));
       centerMap.theta = centerLocationMap.theta;
       logicController.SetCenterLocationMap(centerMap);
-      
       centerLocationMap.x = centerMap.x;
       centerLocationMap.y = centerMap.y;
-      
       centerLocationOdom.x = centerOdom.x;
       centerLocationOdom.y = centerOdom.y;
-      
       startTime = getROSTimeInMilliSecs();
-    }
-
-    else
+    }else
     {
       return;
     }
